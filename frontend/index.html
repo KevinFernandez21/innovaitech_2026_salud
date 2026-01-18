@@ -1,10 +1,83 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{projectName}} - TresJS</title>
+    <title>Cardio-Band - Sistema de Monitoreo Cardiovascular</title>
+
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Public+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "clinical-blue": {
+                50: "#e8effd",
+                100: "#cddcfb",
+                200: "#9fbf9",
+                300: "#709ef6",
+                400: "#447ff2",
+                500: "#1F4FD8",
+                600: "#183fab",
+                700: "#122f80",
+              },
+              "health-green": {
+                50: "#eefbf8",
+                100: "#d3f5eb",
+                200: "#a8eadd",
+                300: "#7cdfc9",
+                400: "#51d4b6",
+                500: "#2FBF9B",
+                600: "#25987c",
+              },
+              "primary": "#1f4bdb",
+              "primary-dark": "#1636a0",
+              "accent-green": "#2FBF9B",
+              "background-light": "#F5F7FA",
+              "background-dark": "#181e2a",
+              "card-light": "#FFFFFF",
+              "card-dark": "#222b3b",
+              "text-primary-light": "#2C3E50",
+              "text-primary-dark": "#E2E8F0",
+              "text-secondary-light": "#6F8FA1",
+              "text-secondary-dark": "#94A3B8",
+              "clinical-white": "#FFFFFF",
+              "text-main": "#1e293b",
+              "text-muted": "#64748b",
+              "text-primary": "#1A1C29",
+              "text-secondary": "#6B7280",
+              "surface-light": "#F3F6FF",
+            },
+            fontFamily: {
+              "display": ["Quicksand", "sans-serif"],
+              "body": ["Manrope", "sans-serif"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem",
+              "lg": "0.75rem",
+              "xl": "1rem",
+              "2xl": "1.5rem",
+              "3xl": "2rem",
+              "full": "9999px"
+            },
+            boxShadow: {
+              "soft": "0 4px 20px -2px rgba(31, 79, 216, 0.08)",
+              "card": "0 2px 10px rgba(0, 0, 0, 0.03)",
+              "glow": "0 0 15px rgba(47, 191, 155, 0.3)",
+            }
+          },
+        },
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
