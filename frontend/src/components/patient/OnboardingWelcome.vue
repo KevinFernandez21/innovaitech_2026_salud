@@ -4,7 +4,7 @@ const emit = defineEmits<{
 }>()
 
 const handleContinue = () => {
-  emit('navigate', 'onboarding-permissions')
+  emit('navigate', 'data-consent')
 }
 </script>
 
@@ -15,6 +15,7 @@ const handleContinue = () => {
         <!-- Step Indicator -->
         <div class="flex justify-center gap-2 mb-8">
           <div class="w-8 h-1 rounded-full bg-clinical-blue-500"></div>
+          <div class="w-8 h-1 rounded-full bg-gray-200"></div>
           <div class="w-8 h-1 rounded-full bg-gray-200"></div>
           <div class="w-8 h-1 rounded-full bg-gray-200"></div>
           <div class="w-8 h-1 rounded-full bg-gray-200"></div>
@@ -86,7 +87,7 @@ const handleContinue = () => {
         </button>
 
         <!-- Step Counter -->
-        <p class="text-sm text-text-muted mt-6">Paso 1 de 6</p>
+        <p class="text-sm text-text-muted mt-6">Paso 1 de 7</p>
       </div>
     </div>
   </div>

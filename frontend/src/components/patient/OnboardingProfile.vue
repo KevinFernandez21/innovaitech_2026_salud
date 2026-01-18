@@ -207,7 +207,7 @@ const handleBack = () => {
         >
           Continuar
         </button>
-        <p class="text-sm text-text-muted text-center mt-3">Paso 5 de 6</p>
+        <p class="text-sm text-text-muted text-center mt-3">Paso 6 de 7</p>
       </div>
     </div>
   </div>

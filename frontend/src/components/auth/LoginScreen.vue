@@ -1,11 +1,26 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import type { UserRole } from '../../types/user'
 
-const { login } = useAuth()
+const { login, resetOnboarding, completeOnboarding } = useAuth()
+const showPatientOptions = ref(false)
 
-const handleLogin = (role: UserRole) => {
-  login(role)
+const handleLogin = (role: UserRole, isNewPatient = false) => {
+  const user = login(role)
+
+  // Si es paciente nuevo (register), resetear onboarding para forzar el flujo completo
+  if (role === 'patient' && isNewPatient && user) {
+    resetOnboarding()
+  }
+  // Si es paciente existente (login), marcar onboarding como completado
+  else if (role === 'patient' && !isNewPatient && user) {
+    completeOnboarding()
+  }
+}
+
+const togglePatientOptions = () => {
+  showPatientOptions.value = !showPatientOptions.value
 }
 </script>
 
@@ -25,22 +40,64 @@ const handleLogin = (role: UserRole) => {
       <!-- Role Selection Cards -->
       <div class="space-y-4">
         <!-- Patient Role -->
-        <button
-          @click="handleLogin('patient')"
-          class="w-full bg-white rounded-2xl p-6 shadow-soft border-2 border-clinical-blue-100 hover:border-clinical-blue-500 hover:shadow-lg transition-all text-left group"
-        >
-          <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-clinical-blue-500 to-clinical-blue-600 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
-              <span class="material-symbols-outlined text-4xl">person</span>
+        <div class="w-full">
+          <button
+            @click="togglePatientOptions"
+            class="w-full bg-white rounded-2xl p-6 shadow-soft border-2 border-clinical-blue-100 hover:border-clinical-blue-500 hover:shadow-lg transition-all text-left group"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-clinical-blue-500 to-clinical-blue-600 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-4xl">person</span>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-xl font-display font-bold text-clinical-blue-600 mb-1">Paciente</h3>
+                <p class="text-sm text-text-muted">Monitorea tu salud cardiovascular</p>
+              </div>
+              <span
+                class="material-symbols-outlined text-clinical-blue-300 group-hover:text-clinical-blue-500 text-3xl transition-transform"
+                :class="{ 'rotate-90': showPatientOptions }"
+              >
+                chevron_right
+              </span>
             </div>
-            <div class="flex-1">
-              <h3 class="text-xl font-display font-bold text-clinical-blue-600 mb-1">Paciente</h3>
-              <p class="text-sm text-text-muted">Monitorea tu salud cardiovascular</p>
-              <p class="text-xs text-health-green-600 mt-1 font-medium">Sarah Johnson</p>
-            </div>
-            <span class="material-symbols-outlined text-clinical-blue-300 group-hover:text-clinical-blue-500 text-3xl">chevron_right</span>
+          </button>
+
+          <!-- Patient Login/Register Options -->
+          <div
+            v-if="showPatientOptions"
+            class="mt-3 ml-4 space-y-3 animate-fade-in"
+          >
+            <!-- Register Button -->
+            <button
+              @click="handleLogin('patient', true)"
+              class="w-full bg-gradient-to-r from-clinical-blue-500 to-clinical-blue-600 text-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all text-left group flex items-center gap-3"
+            >
+              <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl">person_add</span>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-semibold text-base">Registrarse</h4>
+                <p class="text-xs text-clinical-blue-100">Nuevo paciente - Configuración inicial</p>
+              </div>
+              <span class="material-symbols-outlined text-white/70 group-hover:text-white text-2xl">arrow_forward</span>
+            </button>
+
+            <!-- Login Button -->
+            <button
+              @click="handleLogin('patient', false)"
+              class="w-full bg-white border-2 border-clinical-blue-200 text-clinical-blue-600 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-clinical-blue-400 transition-all text-left group flex items-center gap-3"
+            >
+              <div class="w-12 h-12 rounded-xl bg-clinical-blue-50 flex items-center justify-center">
+                <span class="material-symbols-outlined text-2xl text-clinical-blue-600">login</span>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-semibold text-base">Iniciar Sesión</h4>
+                <p class="text-xs text-text-muted">Ya tengo cuenta - Ir al dashboard</p>
+              </div>
+              <span class="material-symbols-outlined text-clinical-blue-300 group-hover:text-clinical-blue-500 text-2xl">arrow_forward</span>
+            </button>
           </div>
-        </button>
+        </div>
 
         <!-- Clinical Role -->
         <button
@@ -93,5 +150,20 @@ const handleLogin = (role: UserRole) => {
 <style scoped>
 .shadow-soft {
   box-shadow: 0 4px 20px -4px rgba(31, 79, 216, 0.1);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

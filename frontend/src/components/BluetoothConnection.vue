@@ -30,10 +30,10 @@
       <div class="bg-clinical-blue-50/50 border border-clinical-blue-100 rounded-2xl p-4 mb-6 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-clinical-blue-500 flex items-center justify-center text-white">
-            <span class="text-xs font-bold">3/6</span>
+            <span class="text-xs font-bold">4/7</span>
           </div>
           <div>
-            <span class="block text-xs font-bold text-clinical-blue-500 uppercase tracking-widest">Paso 3 de 6</span>
+            <span class="block text-xs font-bold text-clinical-blue-500 uppercase tracking-widest">Paso 4 de 7</span>
             <span class="text-sm font-semibold text-text-main">Emparejamiento Bluetooth</span>
           </div>
         </div>

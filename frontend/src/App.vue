@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useAuth } from './composables/useAuth'
 import LoginScreen from './components/auth/LoginScreen.vue'
 import OnboardingWelcome from './components/patient/OnboardingWelcome.vue'
+import DataConsent from './components/patient/DataConsent.vue'
 import OnboardingPermissions from './components/patient/OnboardingPermissions.vue'
 import OnboardingProfile from './components/patient/OnboardingProfile.vue'
 import OnboardingComplete from './components/patient/OnboardingComplete.vue'
@@ -28,12 +29,13 @@ const {
   isPatient,
   isClinical,
   isFamily,
-  initialize
+  initialize,
+  logout
 } = useAuth()
 
 // Screen navigation
 type PatientScreen =
-  | 'onboarding-welcome' | 'onboarding-permissions'
+  | 'onboarding-welcome' | 'data-consent' | 'onboarding-permissions'
   | 'bluetooth' | 'calibration' | 'onboarding-profile' | 'onboarding-complete'
   | 'dashboard' | 'trends' | 'education' | 'metaphors' | 'achievements'
 
@@ -87,7 +89,13 @@ onMounted(() => {
           @navigate="navigatePatient"
         />
 
-        <!-- Step 2: Permissions -->
+        <!-- Step 2: Data Consent -->
+        <DataConsent
+          v-else-if="currentPatientScreen === 'data-consent'"
+          @navigate="navigatePatient"
+        />
+
+        <!-- Step 3: Permissions -->
         <OnboardingPermissions
           v-else-if="currentPatientScreen === 'onboarding-permissions'"
           @navigate="navigatePatient"
@@ -162,6 +170,12 @@ onMounted(() => {
         <!-- Education Hub -->
         <EducationHub
           v-else-if="currentPatientScreen === 'education'"
+          @navigate="navigatePatient"
+        />
+
+        <!-- Default: Dashboard -->
+        <PatientDashboard
+          v-else
           @navigate="navigatePatient"
         />
       </div>

@@ -17,7 +17,7 @@
         <!-- Step Indicator -->
         <div class="w-full flex justify-center mt-2 mb-4">
           <span class="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary dark:text-primary-light ring-1 ring-inset ring-primary/20">
-            Paso 4 de 6 • Calibración Dinámica
+            Paso 5 de 7 • Calibración Dinámica
           </span>
         </div>
 

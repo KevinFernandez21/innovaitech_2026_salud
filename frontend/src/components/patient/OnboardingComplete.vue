@@ -96,7 +96,7 @@ const handleStart = () => {
       </div>
 
       <!-- Step Counter -->
-      <p class="text-sm text-text-muted mt-6">Paso 6 de 6 - Completado</p>
+      <p class="text-sm text-text-muted mt-6">Paso 7 de 7 - Completado</p>
     </div>
   </div>
 </template>

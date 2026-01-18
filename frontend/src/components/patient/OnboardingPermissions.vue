@@ -26,7 +26,7 @@ const handleContinue = () => {
 }
 
 const handleBack = () => {
-  emit('navigate', 'onboarding-welcome')
+  emit('navigate', 'data-consent')
 }
 
 const allPermissionsGranted = () => {
@@ -232,7 +232,7 @@ const allPermissionsGranted = () => {
         >
           Continuar
         </button>
-        <p class="text-sm text-text-muted text-center mt-3">Paso 2 de 6</p>
+        <p class="text-sm text-text-muted text-center mt-3">Paso 3 de 7</p>
       </div>
     </div>
   </div>
