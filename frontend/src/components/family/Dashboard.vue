@@ -19,19 +19,19 @@ const getHealthStatus = () => {
     color: 'red',
     label: 'Requiere Atención',
     icon: 'sentiment_very_dissatisfied',
-    message: 'Patient requires immediate attention. Please check alerts.'
+    message: 'El paciente requiere atención inmediata. Por favor revisa las alertas.'
   }
   if (patient.streak_days >= 7) return {
     color: 'green',
-    label: 'All Good',
+    label: 'Todo Bien',
     icon: 'sentiment_satisfied',
-    message: 'Patient is resting comfortably. Vitals are steady and stable today.'
+    message: 'El paciente está descansando cómodamente. Los signos vitales están estables hoy.'
   }
   return {
     color: 'yellow',
     label: 'Normal',
     icon: 'sentiment_neutral',
-    message: 'Patient is doing well. Monitor vitals regularly.'
+    message: 'El paciente está bien. Monitorea los signos vitales regularmente.'
   }
 }
 
@@ -44,8 +44,8 @@ const status = getHealthStatus()
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
       <div class="px-6 py-4 flex items-center justify-between max-w-md mx-auto">
         <div class="flex flex-col">
-          <span class="text-xs font-semibold text-clinical-blue-500 uppercase tracking-wider">Clinical View</span>
-          <h1 class="text-xl font-bold leading-tight text-clinical-blue-500">Patient Wellness</h1>
+          <span class="text-xs font-semibold text-clinical-blue-500 uppercase tracking-wider">Vista Familiar</span>
+          <h1 class="text-xl font-bold leading-tight text-clinical-blue-500">Bienestar del Paciente</h1>
         </div>
         <div class="relative group cursor-pointer">
           <div class="absolute -inset-0.5 bg-gradient-to-r from-clinical-blue-500 to-health-green-500 rounded-full opacity-30 group-hover:opacity-60 transition duration-200 blur-[2px]"></div>
@@ -197,7 +197,7 @@ const status = getHealthStatus()
             </div>
             <div class="flex flex-col items-start">
               <span class="font-bold text-clinical-blue-500 text-sm">Llamar</span>
-              <span class="text-[10px] text-text-muted">Audio call</span>
+              <span class="text-[10px] text-text-muted">Llamada de voz</span>
             </div>
           </button>
 

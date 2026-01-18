@@ -34,27 +34,28 @@ const getSeverityColor = (severity?: string) => {
   <div class="min-h-screen bg-white">
     <!-- Header -->
     <header class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 z-10">
-      <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+      <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 md:gap-3 min-w-0">
           <button
             @click="emit('navigate', 'dashboard')"
-            class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center"
+            class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center flex-shrink-0"
           >
             <span class="material-symbols-outlined text-gray-600">arrow_back</span>
           </button>
-          <h1 class="text-lg font-display font-bold text-text-main">Alertas Críticas</h1>
+          <h1 class="text-base md:text-lg font-display font-bold text-text-main truncate">Alertas Críticas</h1>
         </div>
         <button
           v-if="unreadAlerts.length > 0"
           @click="markAllAsRead"
-          class="text-sm text-clinical-blue-500 hover:text-clinical-blue-600 font-semibold"
+          class="text-xs md:text-sm text-clinical-blue-500 hover:text-clinical-blue-600 font-semibold whitespace-nowrap flex-shrink-0"
         >
-          Marcar todas como leídas
+          <span class="hidden md:inline">Marcar todas como leídas</span>
+          <span class="md:hidden">Marcar todas</span>
         </button>
       </div>
     </header>
 
-    <div class="max-w-7xl mx-auto px-6 py-6">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-6">
       <!-- Stats -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-red-50 rounded-2xl p-6 border border-red-200">
@@ -88,20 +89,67 @@ const getSeverityColor = (severity?: string) => {
           v-for="alert in notifications"
           :key="alert.id"
           :class="[
-            'bg-white rounded-2xl p-6 border-2 transition-all',
+            'bg-white rounded-2xl p-4 md:p-6 border-2 transition-all',
             alert.read ? 'border-gray-200 opacity-75' : 'border-red-200 shadow-lg'
           ]"
         >
-          <div class="flex items-start gap-4">
+          <!-- Mobile Layout -->
+          <div class="md:hidden">
+            <div class="flex items-start gap-3 mb-3">
+              <div :class="['w-3 h-3 rounded-full mt-1 flex-shrink-0', getSeverityColor(alert.severity)]"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <h3 class="font-semibold text-text-main text-sm">{{ alert.patient_name }}</h3>
+                  <span :class="[
+                    'px-2 py-0.5 rounded-lg text-xs font-semibold whitespace-nowrap flex-shrink-0',
+                    alert.severity === 'high' ? 'bg-red-100 text-red-700' :
+                    alert.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                    'bg-blue-100 text-blue-700'
+                  ]">
+                    {{ alert.severity === 'high' ? 'Crítica' : alert.severity === 'medium' ? 'Media' : 'Baja' }}
+                  </span>
+                </div>
+                <p class="text-sm text-text-main mb-3 break-words">{{ alert.message }}</p>
+                <div class="flex flex-col gap-2 mb-3">
+                  <span class="text-xs text-text-muted flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">schedule</span>
+                    {{ new Date(alert.timestamp).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) }}
+                  </span>
+                  <span class="text-xs text-text-muted flex items-center gap-1">
+                    <span class="material-symbols-outlined text-sm">{{ alert.type === 'alert' ? 'priority_high' : 'chat' }}</span>
+                    {{ alert.type === 'alert' ? 'Alerta' : 'Mensaje' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2 pl-6">
+              <button
+                v-if="!alert.read"
+                @click="markAsRead(alert.id)"
+                class="w-full px-4 py-2.5 bg-clinical-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-clinical-blue-600 transition-colors"
+              >
+                Marcar como leída
+              </button>
+              <button
+                @click="emit('navigate', `patient-detail-${alert.patient_id}`)"
+                class="w-full px-4 py-2.5 bg-gray-100 text-text-main rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors"
+              >
+                Ver paciente
+              </button>
+            </div>
+          </div>
+
+          <!-- Desktop Layout -->
+          <div class="hidden md:flex items-start gap-4">
             <div :class="['w-3 h-3 rounded-full mt-2 flex-shrink-0', getSeverityColor(alert.severity)]"></div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
               <div class="flex items-start justify-between mb-2">
-                <div>
+                <div class="flex-1 min-w-0 pr-4">
                   <h3 class="font-semibold text-text-main mb-1">{{ alert.patient_name }}</h3>
-                  <p class="text-sm text-text-main">{{ alert.message }}</p>
+                  <p class="text-sm text-text-main break-words">{{ alert.message }}</p>
                 </div>
                 <span :class="[
-                  'px-3 py-1 rounded-lg text-xs font-semibold ml-4',
+                  'px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap flex-shrink-0',
                   alert.severity === 'high' ? 'bg-red-100 text-red-700' :
                   alert.severity === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                   'bg-blue-100 text-blue-700'
@@ -120,17 +168,17 @@ const getSeverityColor = (severity?: string) => {
                 </span>
               </div>
             </div>
-            <div class="flex gap-2">
+            <div class="flex gap-2 flex-shrink-0">
               <button
                 v-if="!alert.read"
                 @click="markAsRead(alert.id)"
-                class="px-4 py-2 bg-clinical-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-clinical-blue-600 transition-colors"
+                class="px-4 py-2 bg-clinical-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-clinical-blue-600 transition-colors whitespace-nowrap"
               >
                 Marcar como leída
               </button>
               <button
                 @click="emit('navigate', `patient-detail-${alert.patient_id}`)"
-                class="px-4 py-2 bg-gray-100 text-text-main rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors"
+                class="px-4 py-2 bg-gray-100 text-text-main rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors whitespace-nowrap"
               >
                 Ver paciente
               </button>
