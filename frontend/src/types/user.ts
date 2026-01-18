@@ -23,6 +23,7 @@ export interface FamilyProfile {
   patient_id: number
   patient_name?: string
   emergency_contact: boolean
+  phone?: string
 }
 
 export interface User {
@@ -54,6 +55,7 @@ export interface Patient {
   streak_days: number
   conditions: string[]
   avatar: string
+  emergency_phones?: string[]
 }
 
 export interface Notification {

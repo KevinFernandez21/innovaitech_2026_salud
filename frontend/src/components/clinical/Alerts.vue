@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { mockNotifications } from '../../api/mockData'
+import { mockNotifications, getPatientById } from '../../api/mockData'
+import { sendEmergencyAlert, type WhatsAppPayload } from '../../api/whatsappService'
 
 const emit = defineEmits<{
   navigate: [screen: string]
@@ -27,6 +28,60 @@ const getSeverityColor = (severity?: string) => {
     case 'low': return 'bg-blue-500'
     default: return 'bg-gray-500'
   }
+}
+
+// WhatsApp Emergency Alerts
+const whatsappLoading = ref<Record<number, boolean>>({})
+const whatsappSuccess = ref<Record<number, boolean>>({})
+const whatsappError = ref<Record<number, boolean>>({})
+
+const notifyFamily = async (alert: typeof notifications.value[0]) => {
+  if (!alert.patient_id) return
+
+  const patient = getPatientById(alert.patient_id)
+  if (!patient || !patient.emergency_phones || patient.emergency_phones.length === 0) {
+    return
+  }
+
+  whatsappLoading.value[alert.id] = true
+  whatsappSuccess.value[alert.id] = false
+  whatsappError.value[alert.id] = false
+
+  try {
+    const urgencyMap = {
+      'high': 'CRITICAL' as const,
+      'medium': 'HIGH' as const,
+      'low': 'MEDIUM' as const
+    }
+
+    const payload: WhatsAppPayload = {
+      patient_id: patient.id,
+      message: `🚨 ALERTA MÉDICA - ${patient.name}\n\n${alert.message}\n\nFecha: ${new Date(alert.timestamp).toLocaleString('es-ES')}\n\nPor favor, contacte al paciente o al equipo médico de inmediato.`,
+      urgency_level: urgencyMap[alert.severity as keyof typeof urgencyMap] || 'HIGH',
+      phone_numbers: patient.emergency_phones
+    }
+
+    await sendEmergencyAlert(payload)
+
+    whatsappSuccess.value[alert.id] = true
+    setTimeout(() => {
+      whatsappSuccess.value[alert.id] = false
+    }, 5000)
+  } catch (error) {
+    console.error('Error enviando alerta:', error)
+    whatsappError.value[alert.id] = true
+    setTimeout(() => {
+      whatsappError.value[alert.id] = false
+    }, 5000)
+  } finally {
+    whatsappLoading.value[alert.id] = false
+  }
+}
+
+const hasEmergencyContacts = (patientId?: number) => {
+  if (!patientId) return false
+  const patient = getPatientById(patientId)
+  return patient && patient.emergency_phones && patient.emergency_phones.length > 0
 }
 </script>
 
@@ -131,6 +186,29 @@ const getSeverityColor = (severity?: string) => {
                 Marcar como leída
               </button>
               <button
+                v-if="hasEmergencyContacts(alert.patient_id) && alert.severity === 'high'"
+                @click="notifyFamily(alert)"
+                :disabled="whatsappLoading[alert.id]"
+                :class="[
+                  'w-full px-4 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2',
+                  whatsappSuccess[alert.id] ? 'bg-health-green-500 text-white' :
+                  whatsappError[alert.id] ? 'bg-red-500 text-white' :
+                  whatsappLoading[alert.id] ? 'bg-orange-400 text-white cursor-not-allowed' :
+                  'bg-orange-500 text-white hover:bg-orange-600'
+                ]"
+              >
+                <span v-if="whatsappLoading[alert.id]" class="material-symbols-outlined animate-spin">progress_activity</span>
+                <span v-else-if="whatsappSuccess[alert.id]" class="material-symbols-outlined">check_circle</span>
+                <span v-else-if="whatsappError[alert.id]" class="material-symbols-outlined">error</span>
+                <span v-else class="material-symbols-outlined">chat</span>
+                <span>
+                  {{ whatsappSuccess[alert.id] ? '¡Familia notificada!' :
+                     whatsappError[alert.id] ? 'Error al enviar' :
+                     whatsappLoading[alert.id] ? 'Enviando...' :
+                     'Notificar Familia' }}
+                </span>
+              </button>
+              <button
                 @click="emit('navigate', `patient-detail-${alert.patient_id}`)"
                 class="w-full px-4 py-2.5 bg-gray-100 text-text-main rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors"
               >
@@ -175,6 +253,27 @@ const getSeverityColor = (severity?: string) => {
                 class="px-4 py-2 bg-clinical-blue-500 text-white rounded-xl text-sm font-semibold hover:bg-clinical-blue-600 transition-colors whitespace-nowrap"
               >
                 Marcar como leída
+              </button>
+              <button
+                v-if="hasEmergencyContacts(alert.patient_id) && alert.severity === 'high'"
+                @click="notifyFamily(alert)"
+                :disabled="whatsappLoading[alert.id]"
+                :class="[
+                  'px-4 py-2 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex items-center gap-2',
+                  whatsappSuccess[alert.id] ? 'bg-health-green-500 text-white' :
+                  whatsappError[alert.id] ? 'bg-red-500 text-white' :
+                  whatsappLoading[alert.id] ? 'bg-orange-400 text-white cursor-not-allowed' :
+                  'bg-orange-500 text-white hover:bg-orange-600'
+                ]"
+              >
+                <span v-if="whatsappLoading[alert.id]" class="material-symbols-outlined animate-spin text-base">progress_activity</span>
+                <span v-else-if="whatsappSuccess[alert.id]" class="material-symbols-outlined text-base">check_circle</span>
+                <span v-else-if="whatsappError[alert.id]" class="material-symbols-outlined text-base">error</span>
+                <span v-else class="material-symbols-outlined text-base">chat</span>
+                {{ whatsappSuccess[alert.id] ? '¡Notificada!' :
+                   whatsappError[alert.id] ? 'Error' :
+                   whatsappLoading[alert.id] ? 'Enviando...' :
+                   'Notificar Familia' }}
               </button>
               <button
                 @click="emit('navigate', `patient-detail-${alert.patient_id}`)"

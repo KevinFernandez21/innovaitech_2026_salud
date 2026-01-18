@@ -40,7 +40,8 @@ export const mockUsers: User[] = [
       relation: 'Esposo',
       patient_id: 1,
       patient_name: 'Sarah Johnson',
-      emergency_contact: true
+      emergency_contact: true,
+      phone: '0939696606'
     }
   }
 ]
@@ -56,7 +57,8 @@ export const mockPatients: Patient[] = [
     alerts_count: 0,
     streak_days: 15,
     conditions: ['Hipertensión'],
-    avatar: 'https://i.pravatar.cc/150?img=1'
+    avatar: 'https://i.pravatar.cc/150?img=1',
+    emergency_phones: ['0939696606']
   },
   {
     id: 4,
@@ -67,7 +69,8 @@ export const mockPatients: Patient[] = [
     alerts_count: 2,
     streak_days: 3,
     conditions: ['Diabetes', 'Hipertensión'],
-    avatar: 'https://i.pravatar.cc/150?img=33'
+    avatar: 'https://i.pravatar.cc/150?img=33',
+    emergency_phones: ['0939696606']
   },
   {
     id: 5,
@@ -111,7 +114,8 @@ export const mockPatients: Patient[] = [
     alerts_count: 3,
     streak_days: 1,
     conditions: ['Hipertensión', 'Arritmia'],
-    avatar: 'https://i.pravatar.cc/150?img=68'
+    avatar: 'https://i.pravatar.cc/150?img=68',
+    emergency_phones: ['0939696606']
   },
   {
     id: 9,
@@ -155,7 +159,8 @@ export const mockPatients: Patient[] = [
     alerts_count: 2,
     streak_days: 2,
     conditions: ['Hipertensión', 'Colesterol alto'],
-    avatar: 'https://i.pravatar.cc/150?img=70'
+    avatar: 'https://i.pravatar.cc/150?img=70',
+    emergency_phones: ['0939696606']
   },
   {
     id: 13,

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import { mockPatients, mockNotifications } from '../../api/mockData'
+import { sendEmergencyAlert, type WhatsAppPayload } from '../../api/whatsappService'
 
 const emit = defineEmits<{
   navigate: [screen: string]
@@ -13,6 +15,11 @@ const patient = mockPatients[0]
 
 // Family notifications
 const familyNotifications = mockNotifications.filter(n => n.patient_id === 1 && !n.read)
+
+// Emergency alert state
+const isEmergencyLoading = ref(false)
+const emergencySuccess = ref(false)
+const emergencyError = ref(false)
 
 const getHealthStatus = () => {
   if (patient.alerts_count > 0) return {
@@ -36,6 +43,45 @@ const getHealthStatus = () => {
 }
 
 const status = getHealthStatus()
+
+// Handle emergency SOS
+const handleEmergencySOS = async () => {
+  if (isEmergencyLoading.value) return
+
+  isEmergencyLoading.value = true
+  emergencySuccess.value = false
+  emergencyError.value = false
+
+  try {
+    const payload: WhatsAppPayload = {
+      patient_id: patient.id,
+      message: `🚨 ALERTA DE EMERGENCIA - ${patient.name}\n\nSe ha activado el botón SOS. El paciente puede necesitar asistencia inmediata.\n\nDatos del paciente:\n- Edad: ${patient.age} años\n- Condiciones: ${patient.conditions.join(', ')}\n- Última medición: ${new Date(patient.last_measurement).toLocaleString('es-ES')}\n\nPor favor, contacte al paciente lo antes posible.`,
+      urgency_level: 'CRITICAL',
+      phone_numbers: patient.emergency_phones || []
+    }
+
+    const response = await sendEmergencyAlert(payload)
+    console.log('✅ Alerta enviada exitosamente:', response)
+
+    emergencySuccess.value = true
+
+    // Auto-hide success message after 5 seconds
+    setTimeout(() => {
+      emergencySuccess.value = false
+    }, 5000)
+
+  } catch (error) {
+    console.error('❌ Error enviando alerta:', error)
+    emergencyError.value = true
+
+    // Auto-hide error message after 5 seconds
+    setTimeout(() => {
+      emergencyError.value = false
+    }, 5000)
+  } finally {
+    isEmergencyLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -211,18 +257,64 @@ const status = getHealthStatus()
             </div>
           </button>
 
-          <button class="col-span-2 flex items-center justify-between p-4 rounded-2xl bg-white border-2 border-red-500/20 shadow-sm hover:shadow-md transition-all active:scale-95 group overflow-hidden relative">
-            <div class="absolute inset-0 bg-red-500/5 group-hover:bg-red-500/10 transition-colors"></div>
+          <button
+            @click="handleEmergencySOS"
+            :disabled="isEmergencyLoading"
+            class="col-span-2 flex items-center justify-between p-4 rounded-2xl bg-white border-2 transition-all active:scale-95 group overflow-hidden relative"
+            :class="[
+              emergencySuccess ? 'border-health-green-500/50 bg-health-green-50' :
+              emergencyError ? 'border-yellow-500/50 bg-yellow-50' :
+              'border-red-500/20 hover:shadow-md'
+            ]"
+          >
+            <div
+              class="absolute inset-0 transition-colors"
+              :class="[
+                emergencySuccess ? 'bg-health-green-500/10' :
+                emergencyError ? 'bg-yellow-500/10' :
+                'bg-red-500/5 group-hover:bg-red-500/10'
+              ]"
+            ></div>
             <div class="flex items-center gap-4 relative z-10">
-              <div class="bg-red-500/10 p-2.5 rounded-xl text-red-500">
-                <span class="material-symbols-outlined text-2xl filled">local_police</span>
+              <div
+                class="p-2.5 rounded-xl transition-all"
+                :class="[
+                  isEmergencyLoading ? 'bg-clinical-blue-500/10 text-clinical-blue-500 animate-pulse' :
+                  emergencySuccess ? 'bg-health-green-500/10 text-health-green-500' :
+                  emergencyError ? 'bg-yellow-500/10 text-yellow-600' :
+                  'bg-red-500/10 text-red-500'
+                ]"
+              >
+                <span v-if="!isEmergencyLoading && !emergencySuccess && !emergencyError" class="material-symbols-outlined text-2xl filled">local_police</span>
+                <span v-else-if="isEmergencyLoading" class="material-symbols-outlined text-2xl">sync</span>
+                <span v-else-if="emergencySuccess" class="material-symbols-outlined text-2xl filled">check_circle</span>
+                <span v-else class="material-symbols-outlined text-2xl">error</span>
               </div>
               <div class="text-left">
-                <span class="block font-bold text-text-main text-lg">Emergencia SOS</span>
-                <span class="block text-text-muted text-xs font-medium">Alertar servicios inmediatamente</span>
+                <span class="block font-bold text-text-main text-lg">
+                  {{ isEmergencyLoading ? 'Enviando...' :
+                     emergencySuccess ? '¡Alerta Enviada!' :
+                     emergencyError ? 'Error al enviar' :
+                     'Emergencia SOS' }}
+                </span>
+                <span class="block text-text-muted text-xs font-medium">
+                  {{ isEmergencyLoading ? 'Por favor espera...' :
+                     emergencySuccess ? `Enviado a ${patient.emergency_phones?.length || 0} contactos` :
+                     emergencyError ? 'Intenta nuevamente' :
+                     'Alertar servicios inmediatamente' }}
+                </span>
               </div>
             </div>
-            <span class="material-symbols-outlined text-red-500/50 group-hover:translate-x-1 transition-transform relative z-10">arrow_forward_ios</span>
+            <span
+              class="material-symbols-outlined relative z-10 transition-transform"
+              :class="[
+                emergencySuccess ? 'text-health-green-500/50' :
+                emergencyError ? 'text-yellow-500/50' :
+                'text-red-500/50 group-hover:translate-x-1'
+              ]"
+            >
+              {{ emergencySuccess ? 'done' : 'arrow_forward_ios' }}
+            </span>
           </button>
         </div>
       </section>
@@ -326,5 +418,18 @@ const status = getHealthStatus()
 
 .material-symbols-outlined.filled {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-pulse .material-symbols-outlined {
+  animation: spin 1s linear infinite;
 }
 </style>
