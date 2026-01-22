@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
 import { mockPatients, mockNotifications } from '../../api/mockData'
-import { sendEmergencyAlert, type WhatsAppPayload } from '../../api/whatsappService'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
-
+const router = useRouter()
 const { currentUser, logout } = useAuth()
+
+const handleLogout = () => {
+  logout()
+  router.push('/')
+}
 
 // Patient being monitored (Sarah Johnson)
 const patient = mockPatients[0]
@@ -45,42 +47,28 @@ const getHealthStatus = () => {
 const status = getHealthStatus()
 
 // Handle emergency SOS
-const handleEmergencySOS = async () => {
+const handleEmergencySOS = () => {
   if (isEmergencyLoading.value) return
 
-  isEmergencyLoading.value = true
-  emergencySuccess.value = false
-  emergencyError.value = false
-
-  try {
-    const payload: WhatsAppPayload = {
-      patient_id: patient.id,
-      message: `🚨 ALERTA DE EMERGENCIA - ${patient.name}\n\nSe ha activado el botón SOS. El paciente puede necesitar asistencia inmediata.\n\nDatos del paciente:\n- Edad: ${patient.age} años\n- Condiciones: ${patient.conditions.join(', ')}\n- Última medición: ${new Date(patient.last_measurement).toLocaleString('es-ES')}\n\nPor favor, contacte al paciente lo antes posible.`,
-      urgency_level: 'CRITICAL',
-      phone_numbers: patient.emergency_phones || []
-    }
-
-    const response = await sendEmergencyAlert(payload)
-    console.log('✅ Alerta enviada exitosamente:', response)
-
-    emergencySuccess.value = true
-
-    // Auto-hide success message after 5 seconds
-    setTimeout(() => {
-      emergencySuccess.value = false
-    }, 5000)
-
-  } catch (error) {
-    console.error('❌ Error enviando alerta:', error)
+  if (!patient.emergency_phones || patient.emergency_phones.length === 0) {
     emergencyError.value = true
-
-    // Auto-hide error message after 5 seconds
     setTimeout(() => {
       emergencyError.value = false
-    }, 5000)
-  } finally {
-    isEmergencyLoading.value = false
+    }, 3000)
+    return
   }
+
+  const phoneNumber = patient.emergency_phones[0].replace(/\+/g, '')
+  const message = `🚨 ALERTA DE EMERGENCIA - ${patient.name}\n\nSe ha activado el botón SOS. El paciente puede necesitar asistencia inmediata.\n\nDatos del paciente:\n- Edad: ${patient.age} años\n- Condiciones: ${patient.conditions.join(', ')}\n- Última medición: ${new Date(patient.last_measurement).toLocaleString('es-ES')}\n\nPor favor, contacte al paciente lo antes posible.`
+  const encodedMessage = encodeURIComponent(message)
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+
+  window.open(whatsappUrl, '_blank')
+
+  emergencySuccess.value = true
+  setTimeout(() => {
+    emergencySuccess.value = false
+  }, 3000)
 }
 </script>
 
@@ -176,7 +164,7 @@ const handleEmergencySOS = async () => {
           <div class="mt-2 text-xs text-text-muted">Protocolo cumplido</div>
         </div>
 
-        <button @click="emit('navigate', 'messages')" class="bg-gradient-to-br from-clinical-blue-50 to-white rounded-3xl p-5 shadow-soft border border-clinical-blue-100 flex flex-col items-center justify-center gap-3 h-36 text-center group active:scale-95 transition-all">
+        <button @click="router.push('/family/messages')" class="bg-gradient-to-br from-clinical-blue-50 to-white rounded-3xl p-5 shadow-soft border border-clinical-blue-100 flex flex-col items-center justify-center gap-3 h-36 text-center group active:scale-95 transition-all">
           <div class="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform duration-300">
             <span class="material-symbols-outlined text-3xl text-clinical-blue-500 filled">diversity_1</span>
           </div>
@@ -247,7 +235,7 @@ const handleEmergencySOS = async () => {
             </div>
           </button>
 
-          <button @click="emit('navigate', 'messages')" class="flex items-center gap-3 p-4 rounded-2xl bg-white hover:bg-gray-50 border border-gray-100 shadow-soft transition-all active:scale-95 group">
+          <button @click="router.push('/family/messages')" class="flex items-center gap-3 p-4 rounded-2xl bg-white hover:bg-gray-50 border border-gray-100 shadow-soft transition-all active:scale-95 group">
             <div class="bg-clinical-blue-50 text-clinical-blue-500 p-2.5 rounded-xl group-hover:bg-clinical-blue-500 group-hover:text-white transition-colors">
               <span class="material-symbols-outlined text-2xl">forum</span>
             </div>
@@ -365,7 +353,7 @@ const handleEmergencySOS = async () => {
           </div>
         </div>
 
-        <button class="w-full mt-6 py-3 text-sm font-semibold text-clinical-blue-500 hover:text-clinical-blue-600 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all">
+        <button @click="router.push('/family/history')" class="w-full mt-6 py-3 text-sm font-semibold text-clinical-blue-500 hover:text-clinical-blue-600 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all">
           Ver Historial Clínico Completo
         </button>
       </section>
@@ -381,14 +369,14 @@ const handleEmergencySOS = async () => {
           <span class="text-[10px] font-bold">Dashboard</span>
         </button>
 
-        <button class="flex flex-col items-center gap-1 text-text-muted hover:text-clinical-blue-500 transition-colors group">
+        <button @click="router.push('/family/vitals')" class="flex flex-col items-center gap-1 text-text-muted hover:text-clinical-blue-500 transition-colors group">
           <div class="p-1.5 rounded-full group-hover:bg-gray-100 transition-colors">
             <span class="material-symbols-outlined text-[24px]">ecg_heart</span>
           </div>
           <span class="text-[10px] font-medium">Vitales</span>
         </button>
 
-        <button @click="emit('navigate', 'notifications')" class="flex flex-col items-center gap-1 text-text-muted hover:text-clinical-blue-500 transition-colors group relative">
+        <button @click="router.push('/family/notifications')" class="flex flex-col items-center gap-1 text-text-muted hover:text-clinical-blue-500 transition-colors group relative">
           <div class="p-1.5 rounded-full group-hover:bg-gray-100 transition-colors">
             <span class="material-symbols-outlined text-[24px]">notifications</span>
             <span v-if="familyNotifications.length > 0" class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
@@ -396,7 +384,7 @@ const handleEmergencySOS = async () => {
           <span class="text-[10px] font-medium">Alertas</span>
         </button>
 
-        <button @click="logout" class="flex flex-col items-center gap-1 text-text-muted hover:text-clinical-blue-500 transition-colors group">
+        <button @click="handleLogout" class="flex flex-col items-center gap-1 text-text-muted hover:text-clinical-blue-500 transition-colors group">
           <div class="p-1.5 rounded-full group-hover:bg-gray-100 transition-colors">
             <span class="material-symbols-outlined text-[24px]">logout</span>
           </div>

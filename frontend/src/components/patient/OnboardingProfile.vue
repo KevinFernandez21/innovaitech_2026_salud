@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
 
 const fullName = ref('')
 const age = ref('')
@@ -37,12 +36,12 @@ const isFormValid = () => {
 
 const handleContinue = () => {
   if (isFormValid()) {
-    emit('navigate', 'onboarding-complete')
+    router.push('/patient/onboarding/complete')
   }
 }
 
 const handleBack = () => {
-  emit('navigate', 'calibration')
+  router.push('/patient/onboarding/calibration')
 }
 </script>
 

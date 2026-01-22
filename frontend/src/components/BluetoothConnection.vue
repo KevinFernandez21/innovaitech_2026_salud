@@ -1,8 +1,41 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+
+const router = useRouter()
+const route = useRoute()
+
+const isOnboarding = computed(() => route.path.includes('/onboarding'))
+
+const handleBack = () => {
+  if (isOnboarding.value) {
+    router.push('/patient/onboarding/permissions')
+  } else {
+    router.push('/patient/dashboard')
+  }
+}
+
+const handleContinue = () => {
+  router.push('/patient/onboarding/calibration')
+}
+
+// Help modal
+const showHelpModal = ref(false)
+
+const openHelp = () => {
+  showHelpModal.value = true
+}
+
+const closeHelp = () => {
+  showHelpModal.value = false
+}
+</script>
+
 <template>
   <div class="bg-clinical-white text-text-main font-body min-h-screen flex flex-col items-center overflow-x-hidden selection:bg-clinical-blue-100 selection:text-clinical-blue-600">
     <div class="h-12 w-full"></div>
     <header class="w-full px-6 py-4 flex items-center">
-      <button @click="$emit('navigate', 'menu')" class="h-10 w-10 flex items-center justify-center rounded-full bg-gray-50 text-clinical-blue-500 active:scale-90 transition-transform">
+      <button @click="handleBack" class="h-10 w-10 flex items-center justify-center rounded-full bg-gray-50 text-clinical-blue-500 active:scale-90 transition-transform">
         <span class="material-symbols-outlined">chevron_left</span>
       </button>
     </header>
@@ -61,7 +94,7 @@
                 <span class="text-xs text-text-muted">Señal excelente</span>
               </div>
             </div>
-            <button @click="$emit('navigate', 'calibration')" class="bg-clinical-blue-500 text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-md hover:bg-clinical-blue-600 transition-colors">
+            <button @click="handleContinue" class="bg-clinical-blue-500 text-white text-xs font-bold px-5 py-2.5 rounded-full shadow-md hover:bg-clinical-blue-600 transition-colors">
               Conectar
             </button>
           </div>
@@ -82,19 +115,87 @@
         </div>
       </div>
       <footer class="mt-auto py-8 flex flex-col items-center gap-4">
-        <button class="text-clinical-blue-500 font-bold text-sm hover:underline flex items-center gap-2">
+        <button @click="openHelp" class="text-clinical-blue-500 font-bold text-sm hover:underline flex items-center gap-2">
           <span class="material-symbols-outlined text-lg">help</span>
           ¿Necesitas ayuda?
         </button>
         <div class="w-1/3 h-1.5 bg-gray-200 rounded-full mt-2"></div>
       </footer>
     </main>
+
+    <!-- Help Modal -->
+    <div
+      v-if="showHelpModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="closeHelp"
+    >
+      <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-text-main">Centro de Ayuda</h2>
+          <button
+            @click="closeHelp"
+            class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined text-gray-600">close</span>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div class="bg-clinical-blue-50 rounded-xl p-4">
+            <h3 class="font-semibold text-clinical-blue-700 mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-xl">bluetooth</span>
+              Problema de Conexión
+            </h3>
+            <p class="text-sm text-clinical-blue-600 mb-3">
+              Si no puedes encontrar tu Cardio-Band, intenta lo siguiente:
+            </p>
+            <ul class="text-sm text-clinical-blue-600 space-y-2 list-disc list-inside">
+              <li>Asegúrate de que el dispositivo esté encendido</li>
+              <li>Mantén el dispositivo a menos de 2 metros</li>
+              <li>Verifica que el Bluetooth esté activado en tu teléfono</li>
+              <li>Reinicia el dispositivo Cardio-Band</li>
+            </ul>
+          </div>
+
+          <div class="bg-health-green-50 rounded-xl p-4">
+            <h3 class="font-semibold text-health-green-700 mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-xl">battery_charging_full</span>
+              Problemas de Batería
+            </h3>
+            <p class="text-sm text-health-green-600">
+              Si el dispositivo no enciende, cárgalo durante al menos 30 minutos usando el cable USB incluido.
+            </p>
+          </div>
+
+          <div class="bg-purple-50 rounded-xl p-4">
+            <h3 class="font-semibold text-purple-700 mb-2 flex items-center gap-2">
+              <span class="material-symbols-outlined text-xl">phone</span>
+              Contactar Soporte
+            </h3>
+            <p class="text-sm text-purple-600 mb-3">
+              ¿Aún necesitas ayuda? Nuestro equipo está disponible 24/7
+            </p>
+            <div class="flex gap-2">
+              <a href="tel:+593999999999" class="flex-1 py-2 px-3 bg-purple-500 text-white rounded-lg text-sm font-semibold text-center">
+                Llamar
+              </a>
+              <a href="mailto:soporte@cardioband.com" class="flex-1 py-2 px-3 bg-purple-100 text-purple-700 rounded-lg text-sm font-semibold text-center">
+                Email
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <button
+          @click="closeHelp"
+          class="w-full mt-6 py-3 px-4 rounded-xl text-sm font-semibold bg-gray-100 text-text-main hover:bg-gray-200 transition-colors"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
   </div>
 </template>
-
-<script setup lang="ts">
-defineEmits(['navigate'])
-</script>
 
 <style scoped>
 .halo-pulse {

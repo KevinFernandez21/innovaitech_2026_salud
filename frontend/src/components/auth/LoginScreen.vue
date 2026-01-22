@@ -1,21 +1,35 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
 import type { UserRole } from '../../types/user'
 
+const router = useRouter()
 const { login, resetOnboarding, completeOnboarding } = useAuth()
 const showPatientOptions = ref(false)
 
 const handleLogin = (role: UserRole, isNewPatient = false) => {
   const user = login(role)
 
-  // Si es paciente nuevo (register), resetear onboarding para forzar el flujo completo
-  if (role === 'patient' && isNewPatient && user) {
+  if (!user) return
+
+  // Si es paciente nuevo (register), resetear onboarding y redirigir al flujo
+  if (role === 'patient' && isNewPatient) {
     resetOnboarding()
+    router.push('/patient/onboarding/welcome')
   }
-  // Si es paciente existente (login), marcar onboarding como completado
-  else if (role === 'patient' && !isNewPatient && user) {
+  // Si es paciente existente (login), marcar onboarding como completado y redirigir al dashboard
+  else if (role === 'patient' && !isNewPatient) {
     completeOnboarding()
+    router.push('/patient/dashboard')
+  }
+  // Clinical role - redirigir al dashboard clínico
+  else if (role === 'clinical') {
+    router.push('/clinical/dashboard')
+  }
+  // Family role - redirigir al dashboard familiar
+  else if (role === 'family') {
+    router.push('/family/dashboard')
   }
 }
 

@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { mockNotifications, mockPatients } from '../../api/mockData'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
 
 // Patient being monitored
 const patient = mockPatients[0]
@@ -83,6 +82,22 @@ const markAllAsRead = () => {
   notifications.value.forEach(n => n.read = true)
 }
 
+// Show notification detail modal
+const selectedNotification = ref<typeof notifications.value[0] | null>(null)
+const showDetailModal = ref(false)
+
+const viewDetail = (notification: typeof notifications.value[0]) => {
+  selectedNotification.value = notification
+  showDetailModal.value = true
+  // Mark as read when viewing detail
+  markAsRead(notification.id)
+}
+
+const closeDetailModal = () => {
+  showDetailModal.value = false
+  selectedNotification.value = null
+}
+
 // Get notification icon and color
 const getNotificationStyle = (type: string, severity?: string) => {
   if (type === 'alert') {
@@ -140,7 +155,7 @@ const formatRelativeTime = (date: Date) => {
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-3">
             <button
-              @click="emit('navigate', 'dashboard')"
+              @click="router.push('/family/dashboard')"
               class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center"
             >
               <span class="material-symbols-outlined text-gray-600">arrow_back</span>
@@ -268,6 +283,7 @@ const formatRelativeTime = (date: Date) => {
                       </button>
                       <button
                         v-if="notification.severity === 'high'"
+                        @click="viewDetail(notification)"
                         class="text-xs text-red-500 font-semibold hover:text-red-600"
                       >
                         Ver detalle
@@ -287,6 +303,108 @@ const formatRelativeTime = (date: Date) => {
         <p class="text-text-muted">No hay notificaciones</p>
       </div>
     </main>
+
+    <!-- Notification Detail Modal -->
+    <div
+      v-if="showDetailModal && selectedNotification"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="closeDetailModal"
+    >
+      <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div :class="[
+              'w-12 h-12 rounded-full flex items-center justify-center border-2',
+              getNotificationStyle(selectedNotification.type, selectedNotification.severity).bg,
+              getNotificationStyle(selectedNotification.type, selectedNotification.severity).border
+            ]">
+              <span :class="[
+                'material-symbols-outlined text-xl',
+                getNotificationStyle(selectedNotification.type, selectedNotification.severity).iconColor
+              ]">
+                {{ getNotificationStyle(selectedNotification.type, selectedNotification.severity).icon }}
+              </span>
+            </div>
+            <div>
+              <h2 class="text-lg font-bold text-text-main">{{ selectedNotification.patient_name }}</h2>
+              <p class="text-xs text-text-muted">{{ formatRelativeTime(selectedNotification.timestamp) }}</p>
+            </div>
+          </div>
+          <button
+            @click="closeDetailModal"
+            class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined text-gray-600">close</span>
+          </button>
+        </div>
+
+        <!-- Priority Badge -->
+        <div v-if="selectedNotification.severity === 'high'" class="mb-4 bg-red-50 border-2 border-red-200 rounded-xl p-3 flex items-center gap-3">
+          <span class="material-symbols-outlined text-red-500 text-xl">warning</span>
+          <p class="text-sm text-red-700 font-semibold">Notificación Urgente</p>
+        </div>
+
+        <!-- Message -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-text-main mb-2">Mensaje</h3>
+          <p class="text-sm text-text-body leading-relaxed bg-gray-50 rounded-xl p-4">
+            {{ selectedNotification.message }}
+          </p>
+        </div>
+
+        <!-- Recommended Actions -->
+        <div class="mb-6">
+          <h3 class="text-sm font-semibold text-text-main mb-3">Acciones Recomendadas</h3>
+          <div class="space-y-2">
+            <button
+              @click="router.push('/family/vitals'); closeDetailModal()"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-clinical-blue-50 text-clinical-blue-700 hover:bg-clinical-blue-100 transition-colors text-left"
+            >
+              <span class="material-symbols-outlined">vital_signs</span>
+              <div class="flex-1">
+                <p class="font-semibold text-sm">Ver Signos Vitales</p>
+                <p class="text-xs text-clinical-blue-600">Revisa las últimas mediciones</p>
+              </div>
+              <span class="material-symbols-outlined text-clinical-blue-500">chevron_right</span>
+            </button>
+
+            <button
+              v-if="selectedNotification.severity === 'high'"
+              @click="router.push('/family/messages'); closeDetailModal()"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-health-green-50 text-health-green-700 hover:bg-health-green-100 transition-colors text-left"
+            >
+              <span class="material-symbols-outlined">chat</span>
+              <div class="flex-1">
+                <p class="font-semibold text-sm">Contactar al Paciente</p>
+                <p class="text-xs text-health-green-600">Envía un mensaje</p>
+              </div>
+              <span class="material-symbols-outlined text-health-green-500">chevron_right</span>
+            </button>
+
+            <button
+              @click="router.push('/family/history'); closeDetailModal()"
+              class="w-full flex items-center gap-3 p-3 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors text-left"
+            >
+              <span class="material-symbols-outlined">history</span>
+              <div class="flex-1">
+                <p class="font-semibold text-sm">Historial Clínico</p>
+                <p class="text-xs text-purple-600">Ver eventos anteriores</p>
+              </div>
+              <span class="material-symbols-outlined text-purple-500">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Close Button -->
+        <button
+          @click="closeDetailModal"
+          class="w-full py-3 px-4 rounded-xl text-sm font-semibold bg-gray-100 text-text-main hover:bg-gray-200 transition-colors"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 

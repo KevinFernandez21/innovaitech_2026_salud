@@ -3,7 +3,7 @@
     <div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto overflow-hidden bg-background-light dark:bg-background-dark shadow-2xl">
       <!-- Top App Bar -->
       <header class="flex items-center px-6 py-4 justify-between bg-transparent z-10">
-        <button @click="$emit('navigate', 'menu')" class="flex size-10 items-center justify-center rounded-full bg-white dark:bg-card-dark shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-text-primary-light dark:text-text-primary-dark">
+        <button @click="handleBack" class="flex size-10 items-center justify-center rounded-full bg-white dark:bg-card-dark shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-text-primary-light dark:text-text-primary-dark">
           <span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span>
         </button>
         <div class="flex flex-col items-center">
@@ -88,7 +88,7 @@
           <span class="material-symbols-outlined group-hover:animate-bounce">{{ isRunning ? 'pause' : 'play_arrow' }}</span>
           <span>{{ isRunning ? 'Pausar Ejercicio' : 'Comenzar Ejercicio' }}</span>
         </button>
-        <button @click="$emit('navigate', 'onboarding-profile')" class="mt-3 text-sm text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors underline">
+        <button @click="handleSkip" class="mt-3 text-sm text-text-secondary-light dark:text-text-secondary-dark hover:text-primary transition-colors underline">
           Omitir calibración
         </button>
         <p class="mt-2 text-xs text-text-secondary-light dark:text-text-secondary-dark text-center">
@@ -101,8 +101,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
-defineEmits(['navigate'])
+const router = useRouter()
+const route = useRoute()
+
+const isOnboarding = computed(() => route.path.includes('/onboarding'))
 
 const timeLeft = ref(60)
 const isRunning = ref(false)
@@ -140,6 +144,18 @@ const startExercise = () => {
       }
     }, 1000) as unknown as number
   }
+}
+
+const handleBack = () => {
+  if (isOnboarding.value) {
+    router.push('/patient/onboarding/bluetooth')
+  } else {
+    router.push('/patient/dashboard')
+  }
+}
+
+const handleSkip = () => {
+  router.push('/patient/onboarding/profile')
 }
 
 onUnmounted(() => {

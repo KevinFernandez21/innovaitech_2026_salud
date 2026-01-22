@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { mockTrends } from '../../api/mockData'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
 
 type TimeRange = '7d' | '30d' | '90d'
 const selectedRange = ref<TimeRange>('7d')
@@ -42,7 +41,51 @@ const avgSleep = computed(() => {
 })
 
 const handleBack = () => {
-  emit('navigate', 'dashboard')
+  router.push('/patient/dashboard')
+}
+
+// Download functionality
+const showDownloadModal = ref(false)
+const downloadFormat = ref<'pdf' | 'csv' | 'json'>('pdf')
+const includeCharts = ref(true)
+const includeRawData = ref(true)
+
+const openDownloadModal = () => {
+  showDownloadModal.value = true
+}
+
+const closeDownloadModal = () => {
+  showDownloadModal.value = false
+}
+
+const handleDownload = () => {
+  // In a real app, this would generate the actual file
+  const rangeText = selectedRange.value === '7d' ? '7 días' : selectedRange.value === '30d' ? '30 días' : '90 días'
+
+  let formatText = ''
+  switch (downloadFormat.value) {
+    case 'pdf':
+      formatText = 'PDF'
+      break
+    case 'csv':
+      formatText = 'CSV (Excel)'
+      break
+    case 'json':
+      formatText = 'JSON (Datos estructurados)'
+      break
+  }
+
+  const includedData = []
+  if (includeCharts.value) includedData.push('gráficas')
+  if (includeRawData.value) includedData.push('datos crudos')
+
+  alert(`Descargando reporte de salud:\n\n` +
+    `Formato: ${formatText}\n` +
+    `Período: ${rangeText}\n` +
+    `Incluye: ${includedData.join(', ')}\n\n` +
+    `El archivo se descargará en unos momentos...`)
+
+  closeDownloadModal()
 }
 </script>
 
@@ -58,7 +101,7 @@ const handleBack = () => {
           <span class="material-symbols-outlined text-gray-600">arrow_back</span>
         </button>
         <h1 class="text-lg font-display font-bold text-text-main">Tendencias de Salud</h1>
-        <button class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center">
+        <button @click="openDownloadModal" class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center">
           <span class="material-symbols-outlined text-gray-600">download</span>
         </button>
       </div>
@@ -277,6 +320,151 @@ const handleBack = () => {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Download Modal -->
+    <div
+      v-if="showDownloadModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="closeDownloadModal"
+    >
+      <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-text-main">Descargar Reporte</h2>
+            <p class="text-sm text-text-muted mt-1">Exporta tus datos de salud</p>
+          </div>
+          <button
+            @click="closeDownloadModal"
+            class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined text-gray-600">close</span>
+          </button>
+        </div>
+
+        <!-- Format Selection -->
+        <div class="space-y-4">
+          <div>
+            <h3 class="text-sm font-semibold text-text-main mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-clinical-blue-500">insert_drive_file</span>
+              Formato de archivo
+            </h3>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer hover:bg-gray-50"
+                :class="downloadFormat === 'pdf' ? 'border-clinical-blue-500 bg-clinical-blue-50' : 'border-gray-200'"
+              >
+                <input
+                  type="radio"
+                  v-model="downloadFormat"
+                  value="pdf"
+                  class="w-4 h-4 text-clinical-blue-500"
+                />
+                <div class="flex-1">
+                  <p class="font-semibold text-text-main text-sm">PDF</p>
+                  <p class="text-xs text-text-muted">Reporte visual con gráficas</p>
+                </div>
+                <span class="material-symbols-outlined text-red-500">picture_as_pdf</span>
+              </label>
+
+              <label class="flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer hover:bg-gray-50"
+                :class="downloadFormat === 'csv' ? 'border-clinical-blue-500 bg-clinical-blue-50' : 'border-gray-200'"
+              >
+                <input
+                  type="radio"
+                  v-model="downloadFormat"
+                  value="csv"
+                  class="w-4 h-4 text-clinical-blue-500"
+                />
+                <div class="flex-1">
+                  <p class="font-semibold text-text-main text-sm">CSV</p>
+                  <p class="text-xs text-text-muted">Datos tabulares para Excel</p>
+                </div>
+                <span class="material-symbols-outlined text-health-green-500">table_chart</span>
+              </label>
+
+              <label class="flex items-center gap-3 p-3 rounded-xl border-2 transition-all cursor-pointer hover:bg-gray-50"
+                :class="downloadFormat === 'json' ? 'border-clinical-blue-500 bg-clinical-blue-50' : 'border-gray-200'"
+              >
+                <input
+                  type="radio"
+                  v-model="downloadFormat"
+                  value="json"
+                  class="w-4 h-4 text-clinical-blue-500"
+                />
+                <div class="flex-1">
+                  <p class="font-semibold text-text-main text-sm">JSON</p>
+                  <p class="text-xs text-text-muted">Datos estructurados para desarrolladores</p>
+                </div>
+                <span class="material-symbols-outlined text-purple-500">code</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Content Options -->
+          <div>
+            <h3 class="text-sm font-semibold text-text-main mb-3 flex items-center gap-2">
+              <span class="material-symbols-outlined text-clinical-blue-500">checklist</span>
+              Contenido a incluir
+            </h3>
+            <div class="space-y-2">
+              <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                <input
+                  type="checkbox"
+                  v-model="includeCharts"
+                  class="w-4 h-4 text-clinical-blue-500 rounded"
+                />
+                <div class="flex-1">
+                  <p class="font-medium text-text-main text-sm">Gráficas y visualizaciones</p>
+                  <p class="text-xs text-text-muted">Solo disponible en formato PDF</p>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3 p-3 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+                <input
+                  type="checkbox"
+                  v-model="includeRawData"
+                  class="w-4 h-4 text-clinical-blue-500 rounded"
+                />
+                <div class="flex-1">
+                  <p class="font-medium text-text-main text-sm">Datos detallados</p>
+                  <p class="text-xs text-text-muted">Todas las mediciones del período</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Period Info -->
+          <div class="bg-clinical-blue-50 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-clinical-blue-500 text-lg">calendar_month</span>
+              <div>
+                <p class="text-xs text-clinical-blue-700 font-semibold mb-1">Período seleccionado</p>
+                <p class="text-sm text-clinical-blue-600">
+                  Últimos <span class="font-bold">{{ selectedRange === '7d' ? '7 días' : selectedRange === '30d' ? '30 días' : '90 días' }}</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex gap-3 mt-6">
+          <button
+            @click="closeDownloadModal"
+            class="flex-1 py-3 px-4 rounded-xl text-sm font-semibold bg-gray-100 text-text-main hover:bg-gray-200 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            @click="handleDownload"
+            class="flex-1 py-3 px-4 rounded-xl text-sm font-semibold bg-clinical-blue-500 text-white hover:bg-clinical-blue-600 transition-all active:scale-95 flex items-center justify-center gap-2"
+          >
+            <span class="material-symbols-outlined text-lg">download</span>
+            Descargar
+          </button>
         </div>
       </div>
     </div>

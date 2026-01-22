@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { mockPatients } from '../../api/mockData'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
 
 const searchQuery = ref('')
 const selectedRiskFilter = ref<'all' | 'high' | 'medium' | 'low'>('all')
@@ -54,7 +53,7 @@ const getRiskLabel = (level: string) => {
       <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <button
-            @click="emit('navigate', 'dashboard')"
+            @click="router.push('/clinical/dashboard')"
             class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center"
           >
             <span class="material-symbols-outlined text-gray-600">arrow_back</span>
@@ -119,7 +118,7 @@ const getRiskLabel = (level: string) => {
               v-for="patient in filteredPatients"
               :key="patient.id"
               class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
-              @click="emit('navigate', `patient-detail-${patient.id}`)"
+              @click="router.push(`/clinical/patient/${patient.id}`)"
             >
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">

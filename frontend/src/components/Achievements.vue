@@ -2,12 +2,12 @@
   <div class="bg-clinical-white font-display antialiased selection:bg-health-green selection:text-white">
     <div class="relative flex h-full min-h-screen w-full flex-col overflow-x-hidden max-w-md mx-auto shadow-2xl bg-clinical-white">
       <div class="sticky top-0 z-50 flex items-center bg-clinical-white/90 backdrop-blur-md p-4 pb-2 justify-between border-b border-gray-100">
-        <div @click="$emit('navigate', 'dashboard')" class="text-clinical-blue flex size-12 shrink-0 items-center justify-center rounded-full active:bg-gray-100 transition-colors cursor-pointer">
+        <div @click="router.push('/patient/dashboard')" class="text-clinical-blue flex size-12 shrink-0 items-center justify-center rounded-full active:bg-gray-100 transition-colors cursor-pointer">
           <span class="material-symbols-outlined">arrow_back</span>
         </div>
         <h2 class="text-clinical-blue text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center">Tu Progreso</h2>
         <div class="flex size-12 items-center justify-center">
-          <button class="flex items-center justify-center overflow-hidden rounded-full size-10 text-clinical-blue hover:bg-gray-100 transition-colors">
+          <button @click="openSettings" class="flex items-center justify-center overflow-hidden rounded-full size-10 text-clinical-blue hover:bg-gray-100 transition-colors">
             <span class="material-symbols-outlined">settings</span>
           </button>
         </div>
@@ -115,7 +115,7 @@
             <span class="material-symbols-outlined text-yellow-500">military_tech</span>
             Medallas
           </h3>
-          <button class="text-xs text-clinical-blue font-bold hover:underline">Ver todas</button>
+          <button @click="viewAllMedals" class="text-xs text-clinical-blue font-bold hover:underline">Ver todas</button>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="bg-surface-light p-4 rounded-xl border border-gray-100 flex flex-col items-center text-center gap-3 hover:bg-white hover:shadow-md transition-all cursor-pointer">
@@ -157,17 +157,211 @@
         </div>
       </div>
     </div>
+
+    <!-- Settings Modal -->
+    <div
+      v-if="showSettingsModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="closeSettings"
+    >
+      <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-text-main">Configuración de Logros</h2>
+          <button
+            @click="closeSettings"
+            class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined text-gray-600">close</span>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <label class="flex items-center justify-between p-4 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-clinical-blue">notifications</span>
+              <div>
+                <p class="font-semibold text-text-main text-sm">Notificaciones de Logros</p>
+                <p class="text-xs text-text-muted">Recibe alertas al desbloquear logros</p>
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              v-model="notificationsEnabled"
+              class="w-5 h-5 text-clinical-blue-500 rounded"
+            />
+          </label>
+
+          <label class="flex items-center justify-between p-4 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-clinical-blue">flag</span>
+              <div>
+                <p class="font-semibold text-text-main text-sm">Mostrar Hitos</p>
+                <p class="text-xs text-text-muted">Ver progreso en el camino</p>
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              v-model="showMilestones"
+              class="w-5 h-5 text-clinical-blue-500 rounded"
+            />
+          </label>
+
+          <label class="flex items-center justify-between p-4 rounded-xl bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-clinical-blue">lock</span>
+              <div>
+                <p class="font-semibold text-text-main text-sm">Perfil Privado</p>
+                <p class="text-xs text-text-muted">Ocultar logros de otros usuarios</p>
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              v-model="privateProfile"
+              class="w-5 h-5 text-clinical-blue-500 rounded"
+            />
+          </label>
+        </div>
+
+        <button
+          @click="closeSettings"
+          class="w-full mt-6 py-3 px-4 rounded-xl text-sm font-semibold bg-clinical-blue-500 text-white hover:bg-clinical-blue-600 transition-colors"
+        >
+          Guardar Cambios
+        </button>
+      </div>
+    </div>
+
+    <!-- All Medals Modal -->
+    <div
+      v-if="showAllMedals"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      @click.self="closeAllMedals"
+    >
+      <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl max-h-[80vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold text-text-main">Todas las Medallas</h2>
+          <button
+            @click="closeAllMedals"
+            class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined text-gray-600">close</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Unlocked medals -->
+          <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 rounded-xl border-2 border-blue-200 flex flex-col items-center text-center gap-3">
+            <div class="size-16 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center border-2 border-white shadow-lg">
+              <span class="material-symbols-outlined text-clinical-blue text-[32px]">cardiology</span>
+            </div>
+            <div>
+              <p class="text-text-primary font-bold text-sm">Corazón Sano</p>
+              <p class="text-text-secondary text-xs mb-2">Primera medición</p>
+              <span class="bg-health-green-50 text-health-green-700 text-xs font-semibold px-2 py-1 rounded-lg">Desbloqueada</span>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border-2 border-health-green-200 flex flex-col items-center text-center gap-3">
+            <div class="size-16 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center border-2 border-white shadow-lg">
+              <span class="material-symbols-outlined text-health-green text-[32px]">eco</span>
+            </div>
+            <div>
+              <p class="text-text-primary font-bold text-sm">Vida Activa</p>
+              <p class="text-text-secondary text-xs mb-2">7 días activo</p>
+              <span class="bg-health-green-50 text-health-green-700 text-xs font-semibold px-2 py-1 rounded-lg">Desbloqueada</span>
+            </div>
+          </div>
+
+          <!-- Locked medals -->
+          <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200 flex flex-col items-center text-center gap-3 opacity-60">
+            <div class="size-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white">
+              <span class="material-symbols-outlined text-gray-400 text-[32px]">lock</span>
+            </div>
+            <div>
+              <p class="text-gray-400 font-bold text-sm">Guardián</p>
+              <p class="text-gray-400 text-xs mb-2">30 días consecutivos</p>
+              <span class="bg-gray-200 text-gray-600 text-xs font-semibold px-2 py-1 rounded-lg">Bloqueada</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200 flex flex-col items-center text-center gap-3 opacity-60">
+            <div class="size-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white">
+              <span class="material-symbols-outlined text-gray-400 text-[32px]">lock</span>
+            </div>
+            <div>
+              <p class="text-gray-400 font-bold text-sm">Leyenda</p>
+              <p class="text-gray-400 text-xs mb-2">60 días consecutivos</p>
+              <span class="bg-gray-200 text-gray-600 text-xs font-semibold px-2 py-1 rounded-lg">Bloqueada</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200 flex flex-col items-center text-center gap-3 opacity-60">
+            <div class="size-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white">
+              <span class="material-symbols-outlined text-gray-400 text-[32px]">lock</span>
+            </div>
+            <div>
+              <p class="text-gray-400 font-bold text-sm">Maestro</p>
+              <p class="text-gray-400 text-xs mb-2">Completa todos los módulos</p>
+              <span class="bg-gray-200 text-gray-600 text-xs font-semibold px-2 py-1 rounded-lg">Bloqueada</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 p-4 rounded-xl border-2 border-gray-200 flex flex-col items-center text-center gap-3 opacity-60">
+            <div class="size-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white">
+              <span class="material-symbols-outlined text-gray-400 text-[32px]">lock</span>
+            </div>
+            <div>
+              <p class="text-gray-400 font-bold text-sm">Perfeccionista</p>
+              <p class="text-gray-400 text-xs mb-2">100% objetivos completados</p>
+              <span class="bg-gray-200 text-gray-600 text-xs font-semibold px-2 py-1 rounded-lg">Bloqueada</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-clinical-blue-50 rounded-xl">
+          <p class="text-sm text-clinical-blue-700 text-center">
+            <span class="font-bold">2 de 6</span> medallas desbloqueadas. ¡Sigue así!
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-defineEmits(['navigate'])
+const router = useRouter()
 
 const streakDays = ref(15)
 const daysToNextLevel = computed(() => 30 - streakDays.value)
 const rewardProgress = computed(() => Math.round((streakDays.value / 30) * 100))
+
+// Settings modal
+const showSettingsModal = ref(false)
+const notificationsEnabled = ref(true)
+const showMilestones = ref(true)
+const privateProfile = ref(false)
+
+const openSettings = () => {
+  showSettingsModal.value = true
+}
+
+const closeSettings = () => {
+  showSettingsModal.value = false
+}
+
+// View all medals
+const showAllMedals = ref(false)
+
+const viewAllMedals = () => {
+  showAllMedals.value = true
+}
+
+const closeAllMedals = () => {
+  showAllMedals.value = false
+}
 </script>
 
 <style scoped>

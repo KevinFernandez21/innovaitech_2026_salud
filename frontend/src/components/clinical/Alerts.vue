@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { mockNotifications, getPatientById } from '../../api/mockData'
-import { sendEmergencyAlert, type WhatsAppPayload } from '../../api/whatsappService'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
 
 const notifications = ref(mockNotifications)
 
@@ -35,7 +33,7 @@ const whatsappLoading = ref<Record<number, boolean>>({})
 const whatsappSuccess = ref<Record<number, boolean>>({})
 const whatsappError = ref<Record<number, boolean>>({})
 
-const notifyFamily = async (alert: typeof notifications.value[0]) => {
+const notifyFamily = (alert: typeof notifications.value[0]) => {
   if (!alert.patient_id) return
 
   const patient = getPatientById(alert.patient_id)
@@ -43,39 +41,17 @@ const notifyFamily = async (alert: typeof notifications.value[0]) => {
     return
   }
 
-  whatsappLoading.value[alert.id] = true
-  whatsappSuccess.value[alert.id] = false
-  whatsappError.value[alert.id] = false
+  const phoneNumber = patient.emergency_phones[0].replace(/\+/g, '')
+  const message = `🚨 ALERTA MÉDICA - ${patient.name}\n\n${alert.message}\n\nFecha: ${new Date(alert.timestamp).toLocaleString('es-ES')}\n\nPor favor, contacte al paciente o al equipo médico de inmediato.`
+  const encodedMessage = encodeURIComponent(message)
+  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
 
-  try {
-    const urgencyMap = {
-      'high': 'CRITICAL' as const,
-      'medium': 'HIGH' as const,
-      'low': 'MEDIUM' as const
-    }
+  window.open(whatsappUrl, '_blank')
 
-    const payload: WhatsAppPayload = {
-      patient_id: patient.id,
-      message: `🚨 ALERTA MÉDICA - ${patient.name}\n\n${alert.message}\n\nFecha: ${new Date(alert.timestamp).toLocaleString('es-ES')}\n\nPor favor, contacte al paciente o al equipo médico de inmediato.`,
-      urgency_level: urgencyMap[alert.severity as keyof typeof urgencyMap] || 'HIGH',
-      phone_numbers: patient.emergency_phones
-    }
-
-    await sendEmergencyAlert(payload)
-
-    whatsappSuccess.value[alert.id] = true
-    setTimeout(() => {
-      whatsappSuccess.value[alert.id] = false
-    }, 5000)
-  } catch (error) {
-    console.error('Error enviando alerta:', error)
-    whatsappError.value[alert.id] = true
-    setTimeout(() => {
-      whatsappError.value[alert.id] = false
-    }, 5000)
-  } finally {
-    whatsappLoading.value[alert.id] = false
-  }
+  whatsappSuccess.value[alert.id] = true
+  setTimeout(() => {
+    whatsappSuccess.value[alert.id] = false
+  }, 3000)
 }
 
 const hasEmergencyContacts = (patientId?: number) => {
@@ -92,7 +68,7 @@ const hasEmergencyContacts = (patientId?: number) => {
       <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 flex items-center justify-between gap-3">
         <div class="flex items-center gap-2 md:gap-3 min-w-0">
           <button
-            @click="emit('navigate', 'dashboard')"
+            @click="router.push('/clinical/dashboard')"
             class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center flex-shrink-0"
           >
             <span class="material-symbols-outlined text-gray-600">arrow_back</span>
@@ -209,7 +185,7 @@ const hasEmergencyContacts = (patientId?: number) => {
                 </span>
               </button>
               <button
-                @click="emit('navigate', `patient-detail-${alert.patient_id}`)"
+                @click="router.push(`/clinical/patient/${alert.patient_id}`)"
                 class="w-full px-4 py-2.5 bg-gray-100 text-text-main rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors"
               >
                 Ver paciente
@@ -276,7 +252,7 @@ const hasEmergencyContacts = (patientId?: number) => {
                    'Notificar Familia' }}
               </button>
               <button
-                @click="emit('navigate', `patient-detail-${alert.patient_id}`)"
+                @click="router.push(`/clinical/patient/${alert.patient_id}`)"
                 class="px-4 py-2 bg-gray-100 text-text-main rounded-xl text-sm font-semibold hover:bg-gray-200 transition-colors whitespace-nowrap"
               >
                 Ver paciente

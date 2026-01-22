@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
 import { mockPatients } from '../../api/mockData'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
 
 const { currentUser } = useAuth()
 
@@ -119,7 +118,7 @@ const healthStatus = computed(() => {
       <div class="px-6 py-4 max-w-md mx-auto">
         <div class="flex items-center justify-between mb-3">
           <button
-            @click="emit('navigate', 'dashboard')"
+            @click="router.push('/family/dashboard')"
             class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center"
           >
             <span class="material-symbols-outlined text-gray-600">arrow_back</span>

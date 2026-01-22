@@ -368,6 +368,103 @@ export function getPatientById(id: number): Patient | undefined {
   return mockPatients.find(p => p.id === id)
 }
 
+// Doctor type for Find Doctor feature
+export interface Doctor {
+  id: number
+  name: string
+  avatar: string
+  specialty: string
+  rating: number
+  experience: number
+  clinic: string
+  available_times: string[]
+  phone: string
+  email: string
+  languages: string[]
+}
+
+// Mock Doctors for Patient Find Doctor
+export const mockDoctors: Doctor[] = [
+  {
+    id: 1,
+    name: 'Dra. María García',
+    avatar: 'https://i.pravatar.cc/150?img=5',
+    specialty: 'Cardiología',
+    rating: 4.9,
+    experience: 15,
+    clinic: 'Hospital General',
+    available_times: ['Hoy 3:00 PM', 'Mañana 10:00 AM', 'Mañana 4:00 PM'],
+    phone: '+593-99-123-4567',
+    email: 'maria.garcia@hospital.com',
+    languages: ['Español', 'Inglés']
+  },
+  {
+    id: 2,
+    name: 'Dr. Carlos Mendoza',
+    avatar: 'https://i.pravatar.cc/150?img=13',
+    specialty: 'Cardiología',
+    rating: 4.8,
+    experience: 12,
+    clinic: 'Clínica del Corazón',
+    available_times: ['Mañana 11:00 AM', 'Lunes 2:00 PM'],
+    phone: '+593-99-234-5678',
+    email: 'carlos.mendoza@clinica.com',
+    languages: ['Español']
+  },
+  {
+    id: 3,
+    name: 'Dra. Ana Rodríguez',
+    avatar: 'https://i.pravatar.cc/150?img=9',
+    specialty: 'Medicina General',
+    rating: 4.7,
+    experience: 8,
+    clinic: 'Centro Médico San José',
+    available_times: ['Hoy 5:00 PM', 'Mañana 9:00 AM', 'Lunes 11:00 AM'],
+    phone: '+593-99-345-6789',
+    email: 'ana.rodriguez@sanjos e.com',
+    languages: ['Español', 'Inglés', 'Portugués']
+  },
+  {
+    id: 4,
+    name: 'Dr. Luis Fernández',
+    avatar: 'https://i.pravatar.cc/150?img=14',
+    specialty: 'Cardiología',
+    rating: 4.9,
+    experience: 20,
+    clinic: 'Hospital General',
+    available_times: ['Lunes 10:00 AM', 'Martes 3:00 PM'],
+    phone: '+593-99-456-7890',
+    email: 'luis.fernandez@hospital.com',
+    languages: ['Español', 'Inglés']
+  },
+  {
+    id: 5,
+    name: 'Dra. Patricia Vega',
+    avatar: 'https://i.pravatar.cc/150?img=10',
+    specialty: 'Medicina General',
+    rating: 4.6,
+    experience: 10,
+    clinic: 'Clínica La Familia',
+    available_times: ['Hoy 2:00 PM', 'Mañana 1:00 PM', 'Martes 10:00 AM'],
+    phone: '+593-99-567-8901',
+    email: 'patricia.vega@lafamilia.com',
+    languages: ['Español']
+  },
+  {
+    id: 6,
+    name: 'Dr. Roberto Sánchez',
+    avatar: 'https://i.pravatar.cc/150?img=15',
+    specialty: 'Cardiología',
+    rating: 4.8,
+    experience: 18,
+    clinic: 'Centro Cardiológico',
+    available_times: ['Mañana 8:00 AM', 'Lunes 4:00 PM'],
+    phone: '+593-99-678-9012',
+    email: 'roberto.sanchez@cardio.com',
+    languages: ['Español', 'Inglés']
+  }
+]
+
 export function getMeasurementsByPatient(patientId: number): Measurement[] {
   return mockMeasurements.filter(m => m.patient_id === patientId)
 }

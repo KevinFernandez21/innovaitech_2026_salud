@@ -1,7 +1,19 @@
 <script setup lang="ts">
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+// Search functionality
+const showSearch = ref(false)
+const searchQuery = ref('')
+
+const toggleSearch = () => {
+  showSearch.value = !showSearch.value
+  if (!showSearch.value) {
+    searchQuery.value = ''
+  }
+}
 
 const educationTopics = [
   {
@@ -66,14 +78,27 @@ const educationTopics = [
   }
 ]
 
+// Filter topics based on search
+const filteredTopics = computed(() => {
+  if (!searchQuery.value) return educationTopics
+
+  const query = searchQuery.value.toLowerCase()
+  return educationTopics.filter(topic =>
+    topic.title.toLowerCase().includes(query) ||
+    topic.subtitle.toLowerCase().includes(query)
+  )
+})
+
 const handleTopicClick = (topic: typeof educationTopics[0]) => {
   if (topic.screen) {
-    emit('navigate', topic.screen)
+    router.push(`/patient/${topic.screen}`)
+  } else {
+    alert('Este módulo educativo estará disponible próximamente.')
   }
 }
 
 const handleBack = () => {
-  emit('navigate', 'dashboard')
+  router.push('/patient/dashboard')
 }
 </script>
 
@@ -89,14 +114,34 @@ const handleBack = () => {
           <span class="material-symbols-outlined text-gray-600">arrow_back</span>
         </button>
         <h1 class="text-lg font-display font-bold text-text-main">Centro Educativo</h1>
-        <button class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center">
-          <span class="material-symbols-outlined text-gray-600">search</span>
+        <button @click="toggleSearch" class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center">
+          <span class="material-symbols-outlined text-gray-600">{{ showSearch ? 'close' : 'search' }}</span>
         </button>
       </div>
     </header>
 
     <div class="flex-1 overflow-y-auto pb-24">
       <div class="max-w-md mx-auto px-6 py-6">
+        <!-- Search Bar -->
+        <div v-if="showSearch" class="mb-6 animate-fadeIn">
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Buscar temas educativos..."
+              class="w-full pl-12 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-clinical-blue-500 focus:outline-none transition-colors"
+              autofocus
+            />
+          </div>
+          <p v-if="searchQuery && filteredTopics.length === 0" class="mt-3 text-sm text-text-muted text-center">
+            No se encontraron temas que coincidan con "{{ searchQuery }}"
+          </p>
+          <p v-if="searchQuery && filteredTopics.length > 0" class="mt-3 text-sm text-text-muted">
+            {{ filteredTopics.length }} tema(s) encontrado(s)
+          </p>
+        </div>
+
         <!-- Hero Section -->
         <div class="bg-gradient-to-br from-clinical-blue-500 to-clinical-blue-600 rounded-3xl p-6 mb-6 text-white shadow-lg">
           <div class="flex items-start justify-between mb-4">
@@ -148,7 +193,7 @@ const handleBack = () => {
           <h3 class="text-sm font-semibold text-text-main mb-3">Temas Recomendados</h3>
 
           <button
-            v-for="topic in educationTopics"
+            v-for="topic in filteredTopics"
             :key="topic.id"
             @click="handleTopicClick(topic)"
             :class="[

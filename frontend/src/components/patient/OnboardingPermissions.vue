@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
 
 const bluetoothEnabled = ref(false)
 const notificationsEnabled = ref(false)
@@ -22,11 +21,11 @@ const enableLocation = () => {
 }
 
 const handleContinue = () => {
-  emit('navigate', 'bluetooth')
+  router.push('/patient/onboarding/bluetooth')
 }
 
 const handleBack = () => {
-  emit('navigate', 'data-consent')
+  router.push('/patient/onboarding/consent')
 }
 
 const allPermissionsGranted = () => {

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
 
 // Consent checkboxes
 const healthMonitoring = ref(false) // Necesario
@@ -29,12 +28,12 @@ const handleContinue = () => {
     localStorage.setItem('cardioband_consents', JSON.stringify(consents))
 
     // Continuar al siguiente paso
-    emit('navigate', 'onboarding-permissions')
+    router.push('/patient/onboarding/permissions')
   }
 }
 
 const handleBack = () => {
-  emit('navigate', 'onboarding-welcome')
+  router.push('/patient/onboarding/welcome')
 }
 </script>
 

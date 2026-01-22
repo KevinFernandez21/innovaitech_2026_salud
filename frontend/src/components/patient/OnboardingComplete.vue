@@ -1,15 +1,13 @@
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
-
+const router = useRouter()
 const { completeOnboarding } = useAuth()
 
 const handleStart = () => {
   completeOnboarding()
-  emit('navigate', 'dashboard')
+  router.push('/patient/dashboard')
 }
 </script>
 

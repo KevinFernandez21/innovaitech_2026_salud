@@ -1,26 +1,25 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { mockPatients, mockMeasurements, mockTrends, mockNotifications } from '../../api/mockData'
 
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+const router = useRouter()
+const route = useRoute()
 
-const props = defineProps<{
-  patientId: number
-}>()
+// Get patient ID from route params
+const patientId = computed(() => Number(route.params.id))
 
 // Get patient data
-const patient = computed(() => mockPatients.find(p => p.id === props.patientId))
+const patient = computed(() => mockPatients.find(p => p.id === patientId.value))
 
 // Get patient measurements
 const patientMeasurements = computed(() =>
-  mockMeasurements.filter(m => m.patient_id === props.patientId).slice(0, 5)
+  mockMeasurements.filter(m => m.patient_id === patientId.value).slice(0, 5)
 )
 
 // Get patient alerts
 const patientAlerts = computed(() =>
-  mockNotifications.filter(n => n.patient_id === props.patientId && !n.read)
+  mockNotifications.filter(n => n.patient_id === patientId.value && !n.read)
 )
 
 // Selected metric for chart
@@ -57,7 +56,7 @@ const riskColors = computed(() => patient.value ? getRiskColor(patient.value.ris
     <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-100">
       <div class="flex items-center justify-between px-6 py-4 max-w-md mx-auto">
         <button
-          @click="emit('navigate', 'dashboard')"
+          @click="router.push('/clinical/dashboard')"
           class="w-10 h-10 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-center"
         >
           <span class="material-symbols-outlined text-gray-600">arrow_back</span>
@@ -251,7 +250,7 @@ const riskColors = computed(() => patient.value ? getRiskColor(patient.value.ris
     <div class="text-center">
       <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">person_off</span>
       <p class="text-text-muted">Paciente no encontrado</p>
-      <button @click="emit('navigate', 'dashboard')" class="mt-4 px-6 py-2 bg-clinical-blue-500 text-white rounded-xl">
+      <button @click="router.push('/clinical/dashboard')" class="mt-4 px-6 py-2 bg-clinical-blue-500 text-white rounded-xl">
         Volver al Dashboard
       </button>
     </div>

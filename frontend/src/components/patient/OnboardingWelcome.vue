@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const emit = defineEmits<{
-  navigate: [screen: string]
-}>()
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const handleContinue = () => {
-  emit('navigate', 'data-consent')
+  router.push('/patient/onboarding/consent')
 }
 </script>
 

@@ -2,7 +2,7 @@
   <div class="bg-background-light dark:bg-background-dark text-[#101918] transition-colors duration-300">
     <div class="relative flex h-screen w-full max-w-md mx-auto flex-col overflow-hidden shadow-2xl bg-background-light dark:bg-background-dark">
       <div class="flex items-center p-6 pb-2 justify-between">
-        <div @click="$emit('navigate', 'menu')" class="text-[#101918] dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-zinc-800 shadow-sm border border-zinc-100 dark:border-zinc-700 cursor-pointer">
+        <div @click="router.push('/patient/dashboard')" class="text-[#101918] dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full bg-white dark:bg-zinc-800 shadow-sm border border-zinc-100 dark:border-zinc-700 cursor-pointer">
           <span class="material-symbols-outlined">arrow_back_ios_new</span>
         </div>
         <h2 class="text-[#101918] dark:text-white text-lg font-bold leading-tight flex-1 text-center pr-10">Metáforas de Salud</h2>
@@ -107,7 +107,7 @@
           <span class="material-symbols-outlined text-[28px] fill-1">school</span>
           <span class="text-[10px] font-bold">Aprender</span>
         </div>
-        <div @click="$emit('navigate', 'dashboard')" class="flex flex-col items-center gap-1 text-zinc-400 cursor-pointer hover:text-clinical-blue">
+        <div @click="router.push('/patient/dashboard')" class="flex flex-col items-center gap-1 text-zinc-400 cursor-pointer hover:text-clinical-blue">
           <span class="material-symbols-outlined text-[28px]">analytics</span>
           <span class="text-[10px] font-bold">Progreso</span>
         </div>
@@ -122,8 +122,9 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
-defineEmits(['navigate'])
+const router = useRouter()
 
 const sodiumLevel = ref(65)
 const spongeExpanded = ref(false)
