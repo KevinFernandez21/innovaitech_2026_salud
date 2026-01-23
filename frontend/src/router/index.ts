@@ -29,6 +29,7 @@ import ClinicalDashboard from '../components/clinical/Dashboard.vue'
 import PatientList from '../components/clinical/PatientList.vue'
 import ClinicalAlerts from '../components/clinical/Alerts.vue'
 import PatientDetail from '../components/clinical/PatientDetail.vue'
+import LiveSensor from '../components/clinical/LiveSensor.vue'
 
 // Family Components
 import FamilyDashboard from '../components/family/Dashboard.vue'
@@ -177,6 +178,13 @@ const routes: RouteRecordRaw[] = [
     path: '/clinical/patient/:id',
     name: 'clinical-patient-detail',
     component: PatientDetail,
+    props: (route) => ({ patientId: parseInt(route.params.id as string) }),
+    meta: { requiresAuth: true, role: 'clinical' }
+  },
+  {
+    path: '/clinical/patient/:id/sensor',
+    name: 'clinical-patient-sensor',
+    component: LiveSensor,
     props: (route) => ({ patientId: parseInt(route.params.id as string) }),
     meta: { requiresAuth: true, role: 'clinical' }
   },

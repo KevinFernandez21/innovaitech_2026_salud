@@ -63,6 +63,93 @@ const vitalStatus = computed(() => {
     return { label: 'Requiere atención', color: 'bg-red-500', textColor: 'text-red-700', bgColor: 'bg-red-50' }
   }
 })
+
+// Share modal
+const showShareModal = ref(false)
+
+// Generate share text
+const generateShareText = () => {
+  const bp = latestMeasurement.value?.blood_pressure
+  const hr = latestMeasurement.value?.heart_rate
+  const sleep = latestMeasurement.value?.sleep
+  const timestamp = latestMeasurement.value?.timestamp
+
+  let text = `📊 Resumen de Salud - ${patient.name}\n\n`
+  text += `Estado: ${vitalStatus.value.label}\n\n`
+
+  if (bp) {
+    text += `💙 Presión Arterial: ${bp.systolic}/${bp.diastolic} mmHg\n`
+  }
+  if (hr) {
+    text += `💚 Ritmo Cardíaco: ${hr} bpm\n`
+  }
+  if (sleep) {
+    text += `😴 Sueño: ${sleep}h\n`
+  }
+
+  if (timestamp) {
+    text += `\n📅 Última medición: ${formatRelativeTime(timestamp)}\n`
+  }
+
+  text += `\n🩺 Generado por Cardio-Band`
+
+  return text
+}
+
+// Share data handler
+const shareData = async () => {
+  const shareText = generateShareText()
+
+  // Try Web Share API first (mobile/modern browsers)
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: `Datos de salud - ${patient.name}`,
+        text: shareText
+      })
+    } catch (err) {
+      // User cancelled or error - do nothing
+      if ((err as Error).name !== 'AbortError') {
+        console.error('Error sharing:', err)
+        showShareModal.value = true
+      }
+    }
+  } else {
+    // Fallback to modal with options
+    showShareModal.value = true
+  }
+}
+
+// Copy to clipboard
+const copyToClipboard = async () => {
+  const text = generateShareText()
+  try {
+    await navigator.clipboard.writeText(text)
+    alert('✓ Datos copiados al portapapeles')
+    showShareModal.value = false
+  } catch (err) {
+    console.error('Error copying:', err)
+    alert('✗ No se pudo copiar al portapapeles')
+  }
+}
+
+// Share via WhatsApp
+const shareViaWhatsApp = () => {
+  const text = generateShareText()
+  const encodedText = encodeURIComponent(text)
+  const whatsappUrl = `https://wa.me/?text=${encodedText}`
+  window.open(whatsappUrl, '_blank')
+  showShareModal.value = false
+}
+
+// Share via Email
+const shareViaEmail = () => {
+  const text = generateShareText()
+  const subject = `Datos de salud - ${patient.name}`
+  const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`
+  window.location.href = mailtoUrl
+  showShareModal.value = false
+}
 </script>
 
 <template>
@@ -294,12 +381,73 @@ const vitalStatus = computed(() => {
           <span class="material-symbols-outlined text-2xl">chat</span>
           <span class="text-sm font-semibold">Enviar mensaje</span>
         </button>
-        <button class="bg-white border-2 border-clinical-blue-200 text-clinical-blue-500 rounded-2xl p-4 shadow-soft hover:border-clinical-blue-500 transition-all active:scale-95 flex flex-col items-center gap-2">
+        <button
+          @click="shareData"
+          class="bg-white border-2 border-clinical-blue-200 text-clinical-blue-500 rounded-2xl p-4 shadow-soft hover:border-clinical-blue-500 transition-all active:scale-95 flex flex-col items-center gap-2"
+        >
           <span class="material-symbols-outlined text-2xl">share</span>
           <span class="text-sm font-semibold">Compartir datos</span>
         </button>
       </section>
     </main>
+
+    <!-- Share Modal (Fallback) -->
+    <div v-if="showShareModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center" @click="showShareModal = false">
+      <div class="bg-white dark:bg-gray-900 w-full max-w-md md:rounded-3xl rounded-t-3xl p-6 shadow-2xl" @click.stop>
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-bold text-text-main">Compartir datos de salud</h3>
+          <button @click="showShareModal = false" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors flex items-center justify-center">
+            <span class="material-symbols-outlined text-gray-600 text-sm">close</span>
+          </button>
+        </div>
+
+        <!-- Share Options -->
+        <div class="space-y-3">
+          <button
+            @click="shareViaWhatsApp"
+            class="w-full flex items-center gap-4 p-4 rounded-xl bg-green-50 hover:bg-green-100 transition-colors border border-green-200"
+          >
+            <div class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white">
+              <span class="material-symbols-outlined text-2xl">chat</span>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="font-semibold text-text-main">WhatsApp</p>
+              <p class="text-xs text-text-muted">Compartir por WhatsApp</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+          </button>
+
+          <button
+            @click="shareViaEmail"
+            class="w-full flex items-center gap-4 p-4 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors border border-blue-200"
+          >
+            <div class="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white">
+              <span class="material-symbols-outlined text-2xl">mail</span>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="font-semibold text-text-main">Email</p>
+              <p class="text-xs text-text-muted">Enviar por correo electrónico</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+          </button>
+
+          <button
+            @click="copyToClipboard"
+            class="w-full flex items-center gap-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+          >
+            <div class="w-12 h-12 rounded-full bg-gray-500 flex items-center justify-center text-white">
+              <span class="material-symbols-outlined text-2xl">content_copy</span>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="font-semibold text-text-main">Copiar</p>
+              <p class="text-xs text-text-muted">Copiar al portapapeles</p>
+            </div>
+            <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 

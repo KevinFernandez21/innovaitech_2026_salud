@@ -43,6 +43,9 @@ export interface Measurement {
   timestamp: string
   device?: string
   notes?: string
+  heart_rate?: number
+  blood_pressure?: { systolic: number; diastolic: number }
+  sleep?: number
 }
 
 export interface Patient {

@@ -206,7 +206,9 @@ export const mockMeasurements: Measurement[] = [
     value: { systolic: 120, diastolic: 80 },
     timestamp: '2026-01-17T14:30:00',
     device: 'Cardio-Band X1',
-    notes: 'Medición post-ejercicio'
+    notes: 'Medición post-ejercicio',
+    heart_rate: 72,
+    blood_pressure: { systolic: 120, diastolic: 80 }
   },
   {
     id: 2,
@@ -214,7 +216,8 @@ export const mockMeasurements: Measurement[] = [
     type: 'heart_rate',
     value: 72,
     timestamp: '2026-01-17T14:30:00',
-    device: 'Cardio-Band X1'
+    device: 'Cardio-Band X1',
+    heart_rate: 72
   },
   {
     id: 3,
@@ -223,7 +226,8 @@ export const mockMeasurements: Measurement[] = [
     value: 7.5,
     timestamp: '2026-01-17T08:00:00',
     device: 'Cardio-Band X1',
-    notes: 'Buen descanso'
+    notes: 'Buen descanso',
+    sleep: 7.5
   },
   {
     id: 4,
@@ -231,7 +235,9 @@ export const mockMeasurements: Measurement[] = [
     type: 'blood_pressure',
     value: { systolic: 118, diastolic: 78 },
     timestamp: '2026-01-16T09:15:00',
-    device: 'Cardio-Band X1'
+    device: 'Cardio-Band X1',
+    heart_rate: 68,
+    blood_pressure: { systolic: 118, diastolic: 78 }
   },
   {
     id: 5,
@@ -239,7 +245,8 @@ export const mockMeasurements: Measurement[] = [
     type: 'heart_rate',
     value: 68,
     timestamp: '2026-01-16T09:15:00',
-    device: 'Cardio-Band X1'
+    device: 'Cardio-Band X1',
+    heart_rate: 68
   },
   {
     id: 6,
@@ -247,8 +254,73 @@ export const mockMeasurements: Measurement[] = [
     type: 'sleep',
     value: 8.0,
     timestamp: '2026-01-16T08:00:00',
-    device: 'Cardio-Band X1'
-  }
+    device: 'Cardio-Band X1',
+    sleep: 8.0
+  },
+  // Additional measurements for Patient 1 - Sarah Johnson
+  { id: 7, patient_id: 1, type: 'blood_pressure', value: { systolic: 122, diastolic: 82 }, timestamp: '2026-01-23T10:00:00', device: 'Cardio-Band X1', heart_rate: 70, blood_pressure: { systolic: 122, diastolic: 82 } },
+  { id: 8, patient_id: 1, type: 'blood_pressure', value: { systolic: 119, diastolic: 79 }, timestamp: '2026-01-22T15:30:00', device: 'Cardio-Band X1', heart_rate: 69, blood_pressure: { systolic: 119, diastolic: 79 } },
+  { id: 9, patient_id: 1, type: 'sleep', value: 7.8, timestamp: '2026-01-23T08:00:00', device: 'Cardio-Band X1', sleep: 7.8 },
+  { id: 123, patient_id: 1, type: 'blood_pressure', value: { systolic: 121, diastolic: 81 }, timestamp: '2026-01-21T11:45:00', device: 'Cardio-Band X1', heart_rate: 71, blood_pressure: { systolic: 121, diastolic: 81 } },
+  { id: 124, patient_id: 1, type: 'blood_pressure', value: { systolic: 117, diastolic: 77 }, timestamp: '2026-01-20T09:20:00', device: 'Cardio-Band X1', heart_rate: 67, blood_pressure: { systolic: 117, diastolic: 77 } },
+  { id: 125, patient_id: 1, type: 'sleep', value: 8.2, timestamp: '2026-01-22T08:00:00', device: 'Cardio-Band X1', sleep: 8.2 },
+  { id: 126, patient_id: 1, type: 'blood_pressure', value: { systolic: 123, diastolic: 83 }, timestamp: '2026-01-19T14:10:00', device: 'Cardio-Band X1', heart_rate: 72, blood_pressure: { systolic: 123, diastolic: 83 } },
+  { id: 127, patient_id: 1, type: 'sleep', value: 7.6, timestamp: '2026-01-21T08:00:00', device: 'Cardio-Band X1', sleep: 7.6 },
+  // Patient 4 - Carlos Méndez (High Risk)
+  { id: 10, patient_id: 4, type: 'blood_pressure', value: { systolic: 165, diastolic: 95 }, timestamp: '2026-01-23T09:15:00', device: 'Cardio-Band X1', heart_rate: 88, blood_pressure: { systolic: 165, diastolic: 95 } },
+  { id: 11, patient_id: 4, type: 'blood_pressure', value: { systolic: 155, diastolic: 92 }, timestamp: '2026-01-22T14:30:00', device: 'Cardio-Band X1', heart_rate: 85, blood_pressure: { systolic: 155, diastolic: 92 } },
+  { id: 12, patient_id: 4, type: 'blood_pressure', value: { systolic: 160, diastolic: 94 }, timestamp: '2026-01-21T10:00:00', device: 'Cardio-Band X1', heart_rate: 90, blood_pressure: { systolic: 160, diastolic: 94 } },
+  { id: 13, patient_id: 4, type: 'sleep', value: 6.5, timestamp: '2026-01-23T08:00:00', device: 'Cardio-Band X1', sleep: 6.5 },
+  { id: 14, patient_id: 4, type: 'blood_pressure', value: { systolic: 158, diastolic: 93 }, timestamp: '2026-01-20T15:45:00', device: 'Cardio-Band X1', heart_rate: 87, blood_pressure: { systolic: 158, diastolic: 93 } },
+  { id: 15, patient_id: 4, type: 'blood_pressure', value: { systolic: 162, diastolic: 96 }, timestamp: '2026-01-19T11:20:00', device: 'Cardio-Band X1', heart_rate: 92, blood_pressure: { systolic: 162, diastolic: 96 } },
+  { id: 16, patient_id: 4, type: 'blood_pressure', value: { systolic: 157, diastolic: 91 }, timestamp: '2026-01-18T09:00:00', device: 'Cardio-Band X1', heart_rate: 84, blood_pressure: { systolic: 157, diastolic: 91 } },
+  { id: 17, patient_id: 4, type: 'blood_pressure', value: { systolic: 163, diastolic: 95 }, timestamp: '2026-01-17T14:15:00', device: 'Cardio-Band X1', heart_rate: 89, blood_pressure: { systolic: 163, diastolic: 95 } },
+  { id: 18, patient_id: 4, type: 'sleep', value: 6.2, timestamp: '2026-01-22T08:00:00', device: 'Cardio-Band X1', sleep: 6.2 },
+  { id: 19, patient_id: 4, type: 'sleep', value: 6.8, timestamp: '2026-01-21T08:00:00', device: 'Cardio-Band X1', sleep: 6.8 },
+  // Patient 5 - Ana Torres (Low Risk)
+  { id: 20, patient_id: 5, type: 'blood_pressure', value: { systolic: 115, diastolic: 75 }, timestamp: '2026-01-17T10:00:00', device: 'Cardio-Band X1', heart_rate: 68 },
+  { id: 21, patient_id: 5, type: 'blood_pressure', value: { systolic: 118, diastolic: 76 }, timestamp: '2026-01-16T09:30:00', device: 'Cardio-Band X1', heart_rate: 70 },
+  { id: 22, patient_id: 5, type: 'sleep', value: 7.8, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 6 - Roberto Silva (Medium Risk)
+  { id: 30, patient_id: 6, type: 'blood_pressure', value: { systolic: 138, diastolic: 88 }, timestamp: '2026-01-17T08:45:00', device: 'Cardio-Band X1', heart_rate: 78 },
+  { id: 31, patient_id: 6, type: 'blood_pressure', value: { systolic: 135, diastolic: 85 }, timestamp: '2026-01-16T11:00:00', device: 'Cardio-Band X1', heart_rate: 76 },
+  { id: 32, patient_id: 6, type: 'sleep', value: 6.8, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 7 - Patricia López (Low Risk)
+  { id: 40, patient_id: 7, type: 'blood_pressure', value: { systolic: 120, diastolic: 78 }, timestamp: '2026-01-17T13:20:00', device: 'Cardio-Band X1', heart_rate: 72 },
+  { id: 41, patient_id: 7, type: 'blood_pressure', value: { systolic: 118, diastolic: 76 }, timestamp: '2026-01-16T10:15:00', device: 'Cardio-Band X1', heart_rate: 70 },
+  { id: 42, patient_id: 7, type: 'sleep', value: 8.2, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 8 - Miguel Rojas (High Risk)
+  { id: 50, patient_id: 8, type: 'blood_pressure', value: { systolic: 170, diastolic: 98 }, timestamp: '2026-01-15T16:00:00', device: 'Cardio-Band X1', heart_rate: 95 },
+  { id: 51, patient_id: 8, type: 'blood_pressure', value: { systolic: 168, diastolic: 96 }, timestamp: '2026-01-14T14:30:00', device: 'Cardio-Band X1', heart_rate: 92 },
+  { id: 52, patient_id: 8, type: 'sleep', value: 5.5, timestamp: '2026-01-15T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 9 - Laura Jiménez (Medium Risk)
+  { id: 60, patient_id: 9, type: 'blood_pressure', value: { systolic: 132, diastolic: 84 }, timestamp: '2026-01-17T11:30:00', device: 'Cardio-Band X1', heart_rate: 74 },
+  { id: 61, patient_id: 9, type: 'blood_pressure', value: { systolic: 130, diastolic: 82 }, timestamp: '2026-01-16T09:00:00', device: 'Cardio-Band X1', heart_rate: 73 },
+  { id: 62, patient_id: 9, type: 'sleep', value: 7.0, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 10 - Jorge Castro (Low Risk)
+  { id: 70, patient_id: 10, type: 'blood_pressure', value: { systolic: 118, diastolic: 74 }, timestamp: '2026-01-17T09:00:00', device: 'Cardio-Band X1', heart_rate: 66 },
+  { id: 71, patient_id: 10, type: 'blood_pressure', value: { systolic: 116, diastolic: 73 }, timestamp: '2026-01-16T10:30:00', device: 'Cardio-Band X1', heart_rate: 65 },
+  { id: 72, patient_id: 10, type: 'sleep', value: 8.0, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 11 - Diana Vargas (Medium Risk)
+  { id: 80, patient_id: 11, type: 'blood_pressure', value: { systolic: 135, diastolic: 86 }, timestamp: '2026-01-16T15:45:00', device: 'Cardio-Band X1', heart_rate: 80 },
+  { id: 81, patient_id: 11, type: 'blood_pressure', value: { systolic: 133, diastolic: 84 }, timestamp: '2026-01-15T12:00:00', device: 'Cardio-Band X1', heart_rate: 78 },
+  { id: 82, patient_id: 11, type: 'sleep', value: 6.5, timestamp: '2026-01-16T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 12 - Fernando Cruz (High Risk)
+  { id: 90, patient_id: 12, type: 'blood_pressure', value: { systolic: 158, diastolic: 92 }, timestamp: '2026-01-17T07:30:00', device: 'Cardio-Band X1', heart_rate: 86 },
+  { id: 91, patient_id: 12, type: 'blood_pressure', value: { systolic: 162, diastolic: 94 }, timestamp: '2026-01-16T08:00:00', device: 'Cardio-Band X1', heart_rate: 88 },
+  { id: 92, patient_id: 12, type: 'sleep', value: 6.0, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 13 - Gabriela Ríos (Low Risk)
+  { id: 100, patient_id: 13, type: 'blood_pressure', value: { systolic: 112, diastolic: 72 }, timestamp: '2026-01-17T12:00:00', device: 'Cardio-Band X1', heart_rate: 64 },
+  { id: 101, patient_id: 13, type: 'blood_pressure', value: { systolic: 115, diastolic: 74 }, timestamp: '2026-01-16T11:30:00', device: 'Cardio-Band X1', heart_rate: 66 },
+  { id: 102, patient_id: 13, type: 'sleep', value: 8.5, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 14 - Andrés Morales (Medium Risk)
+  { id: 110, patient_id: 14, type: 'blood_pressure', value: { systolic: 140, diastolic: 88 }, timestamp: '2026-01-17T10:15:00', device: 'Cardio-Band X1', heart_rate: 76 },
+  { id: 111, patient_id: 14, type: 'blood_pressure', value: { systolic: 138, diastolic: 86 }, timestamp: '2026-01-16T09:45:00', device: 'Cardio-Band X1', heart_rate: 75 },
+  { id: 112, patient_id: 14, type: 'sleep', value: 7.2, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' },
+  // Patient 15 - Carmen Soto (Low Risk)
+  { id: 120, patient_id: 15, type: 'blood_pressure', value: { systolic: 118, diastolic: 76 }, timestamp: '2026-01-17T14:00:00', device: 'Cardio-Band X1', heart_rate: 68 },
+  { id: 121, patient_id: 15, type: 'blood_pressure', value: { systolic: 116, diastolic: 74 }, timestamp: '2026-01-16T13:00:00', device: 'Cardio-Band X1', heart_rate: 67 },
+  { id: 122, patient_id: 15, type: 'sleep', value: 7.8, timestamp: '2026-01-17T08:00:00', device: 'Cardio-Band X1' }
 ]
 
 // Mock Trend Data (30 days)
