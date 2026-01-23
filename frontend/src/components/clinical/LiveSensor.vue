@@ -101,9 +101,14 @@ interface SensorData {
   timestamp: number
 }
 
+// ===== MOCK MODE CONFIGURATION =====
+const USE_MOCK_DATA = true  // Set to false to use real WebSocket sensor
+// ===================================
+
 // WebSocket configuration
 const WS_URL = 'ws://localhost:8765'
 let ws: WebSocket | null = null
+let mockIntervalId: number | null = null
 
 // Component state
 const isConnected = ref(false)
@@ -123,6 +128,44 @@ const waveformData = ref<number[][]>([])
 
 // Channel colors
 const channelColors = ['#3B82F6', '#10B981', '#A855F7'] // Blue, Green, Purple
+
+// Mock data generator
+let mockTime = 0
+const startMockDataGenerator = () => {
+  // Set initial mock state
+  isConnected.value = true
+  deviceId.value = 203333
+  signalType.value = 'EMG'
+
+  mockIntervalId = window.setInterval(() => {
+    // Generate realistic EMG-like signals
+    const heartbeat = 100 + Math.floor(40 * Math.sin(mockTime * 6) * Math.exp(-((mockTime % 1.0) * 5)))
+    const respiratory = 110 + Math.floor(20 * Math.sin(mockTime * 1.5))
+    const muscle = 90 + Math.floor(15 * Math.sin(mockTime * 10)) + Math.floor(Math.random() * 10 - 5)
+
+    const signals = [
+      Math.max(50, Math.min(200, heartbeat)),
+      Math.max(50, Math.min(200, respiratory)),
+      Math.max(50, Math.min(200, muscle))
+    ]
+
+    // Update current signals
+    currentSignals.value = signals
+
+    // Add to waveform buffer
+    waveformData.value.push(signals)
+
+    // Maintain max buffer size (circular buffer)
+    if (waveformData.value.length > maxDataPoints) {
+      waveformData.value.shift()
+    }
+
+    // Calculate BPM
+    calculateBPM()
+
+    mockTime += 0.02 // 50 Hz simulation
+  }, 20) // 20ms = 50 Hz
+}
 
 // WebSocket connection
 const connectWebSocket = () => {
@@ -264,14 +307,28 @@ const drawWaveform = () => {
 
 // Lifecycle
 onMounted(() => {
-  connectWebSocket()
+  if (USE_MOCK_DATA) {
+    // Use mock data generator
+    startMockDataGenerator()
+  } else {
+    // Connect to real WebSocket sensor
+    connectWebSocket()
+  }
   drawWaveform()
 })
 
 onUnmounted(() => {
+  // Clean up WebSocket
   if (ws) {
     ws.close()
   }
+
+  // Clean up mock data generator
+  if (mockIntervalId) {
+    clearInterval(mockIntervalId)
+  }
+
+  // Clean up animation
   if (animationFrameId) {
     cancelAnimationFrame(animationFrameId)
   }
