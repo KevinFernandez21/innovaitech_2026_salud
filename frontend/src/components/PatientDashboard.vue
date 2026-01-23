@@ -406,7 +406,7 @@ const shareBPData = () => {
           </button>
         </div>
         <button @click="router.push('/patient/metaphors')" class="flex flex-col items-center gap-1 text-gray-400 hover:text-clinical-blue-500 transition-colors">
-          <span class="material-symbols-outlined">watch</span>
+          <span class="material-symbols-outlined">school</span>
         </button>
         <button @click="handleLogout" class="flex flex-col items-center gap-1 text-gray-400 hover:text-clinical-blue-500 transition-colors">
           <span class="material-symbols-outlined">logout</span>
